@@ -83,10 +83,13 @@ const BookDetails = () => {
 
           {/* IMAGE */}
           <img
-          src={book.image || "https://via.placeholder.com/200x280?text=No+Image"}
+          src={book.image || "https://via.placeholder.com/150"}
           alt={book.title}
-          className="w-full h-72 object-cover rounded-lg border"
-          />
+          className="w-40 h-60 object-cover rounded"
+          onError={(e) => {
+          e.target.src = "https://via.placeholder.com/150"; 
+          }}
+        />
 
           {/* DETAILS */}
           <div className="md:col-span-2 space-y-3">
