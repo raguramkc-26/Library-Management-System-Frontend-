@@ -12,8 +12,6 @@ const BookDetails = () => {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(null);
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [comment, setComment] = useState("");
 
   useEffect(() => {
@@ -76,15 +74,6 @@ const BookDetails = () => {
 
   if (!book) return <p className="p-6">Loading...</p>;
 
-  const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  setImage(file);
-
-  if (file) {
-    setPreview(URL.createObjectURL(file));
-  }
-};
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-5xl mx-auto p-6 space-y-6">
@@ -94,9 +83,9 @@ const BookDetails = () => {
 
           {/* IMAGE */}
           <img
-            src={book.image || "https://via.placeholder.com/200x280"}
-            alt={book.title}
-            className="w-full h-72 object-cover rounded-lg"
+          src={book.image || "https://via.placeholder.com/200x280?text=No+Image"}
+          alt={book.title}
+          className="w-full h-72 object-cover rounded-lg border"
           />
 
           {/* DETAILS */}
@@ -126,9 +115,9 @@ const BookDetails = () => {
               {book.status === "Available" ? (
                 <button
                   onClick={handleBorrow}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition"
                 >
-                  Borrow
+                  Borrow Book
                 </button>
               ) : (
                 <button
@@ -147,30 +136,31 @@ const BookDetails = () => {
           <div className="bg-white p-5 rounded-xl shadow space-y-4">
             <h2 className="font-semibold text-lg">Add Review</h2>
 
-            {/* ⭐ STAR RATING */}
-            <div className="flex gap-2 text-2xl">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHover(star)}
-                  onMouseLeave={() => setHover(null)}
-                  className={`cursor-pointer ${
-                    (hover || rating) >= star
-                      ? "text-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
+            {/* STAR RATING */}
+            <div className="flex gap-2 text-3xl">
+  {[1, 2, 3, 4, 5].map((star) => (
+    <button
+      key={star}
+      type="button"
+      onClick={() => setRating(star)}
+      onMouseEnter={() => setHover(star)}
+      onMouseLeave={() => setHover(null)}
+      className={`transition transform hover:scale-125 ${
+        (hover || rating) >= star
+          ? "text-yellow-400"
+          : "text-gray-300"
+      }`}
+    >
+      ★
+    </button>
+  ))}
+</div>
 
             <textarea
               placeholder="Write your review..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded-lg p-3 focus:ring-indigo-400 outline-none"
             />
 
             <button
@@ -187,15 +177,26 @@ const BookDetails = () => {
           <h2 className="font-semibold text-lg mb-4">Reviews</h2>
 
           {reviews.length === 0 ? (
-            <p>No reviews yet</p>
+            <div className="text-center text-gray-500 py-6">
+           <p className="text-lg">No reviews yet</p>
+           <p className="text-sm">Be the first to review this book</p>
+         </div>
           ) : (
             reviews.map((r) => (
-              <div key={r._id} className="border-b py-3">
-                <p className="font-medium">{r.user?.name}</p>
-                <p className="text-yellow-500">⭐ {r.rating}</p>
-                <p className="text-gray-700">{r.comment}</p>
-              </div>
-            ))
+  <div
+    key={r._id}
+    className="bg-gray-50 p-4 rounded-lg shadow-sm border mb-3"
+  >
+    <div className="flex justify-between items-center mb-1">
+      <p className="font-semibold">{r.user?.name}</p>
+      <span className="text-yellow-400 text-sm">
+        {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+      </span>
+    </div>
+
+    <p className="text-gray-700">{r.comment}</p>
+  </div>
+))
           )}
         </div>
 
