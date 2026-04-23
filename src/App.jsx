@@ -3,7 +3,7 @@ import { ToastContainer } from "react-toastify";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import UserDashboard from "./pages/UserDashboard";
-import AdminDashboard from "./components/AdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import BookDetails from "./pages/BookDetails";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
