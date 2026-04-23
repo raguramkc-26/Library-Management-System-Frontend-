@@ -16,24 +16,23 @@ const AdminDashboard = () => {
   }, []);
 
   const fetchAll = async () => {
-    try {
-      const [statsRes, recentRes, topRes] = await Promise.all([
-        instance.get("/admin/stats"),
-        instance.get("/admin/recent"),
-        instance.get("/admin/top-books"),
-      ]);
+  try {
+    const statsRes = await instance.get("/admin/stats");
+    setStats(statsRes.data);
 
-    setStats(statsRes.data?.data || statsRes.data);
-    setRecent(recentRes.data?.data || recentRes.data);
-    setTopBooks(topRes.data?.data || topRes.data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load dashboard");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const recentRes = await instance.get("/admin/recent");
+    setRecent(recentRes.data);
 
+    const topRes = await instance.get("/admin/top-books");
+    setTopBooks(topRes.data);
+
+  } catch (err) {
+    console.error("Dashboard error:", err);
+    toast.error(err.response?.data?.message || "Failed to load dashboard");
+  } finally {
+    setLoading(false);
+  }
+};
   const handleNotifyAll = async () => {
     const message = prompt("Enter notification message");
 
