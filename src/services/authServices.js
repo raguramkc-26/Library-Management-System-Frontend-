@@ -7,7 +7,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (data) => {
     const response = await instance.post('/auth/login', data);
-    return res.data;
+    return response.data;
 };
 
 export const getMe = async () => {
