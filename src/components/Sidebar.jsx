@@ -6,9 +6,8 @@ const Sidebar = () => {
   const { user } = useAuth();
 
   const userLinks = [
-    { name: "Home", path: "/dashboard", icon: Home },
-    { name: "Books", path: "/dashboard/books", icon: Book },
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "Books", path: "/dashboard/books", icon: Book },
     { name: "Profile", path: "/dashboard/profile", icon: User },
     { name: "Notifications", path: "/dashboard/notifications", icon: Bell },
   ];
@@ -19,13 +18,13 @@ const Sidebar = () => {
     { name: "Reviews", path: "/admin/reviews", icon: Book },
   ];
 
-  const links = user && user.role === "admin" ? adminLinks : userLinks;
+  const links = user?.role === "admin" ? adminLinks : userLinks;
 
   return (
-    <div className="w-64 bg-indigo-600 text-white min-h-screen p-5">
-      <h1 className="text-xl font-bold mb-6">📚 LMS</h1>
+    <div className="w-64 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white min-h-screen p-5 shadow-xl">
+      <h1 className="text-2xl font-bold mb-8">📚 LMS</h1>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {links.map((link) => {
           const Icon = link.icon;
           return (
@@ -33,8 +32,10 @@ const Sidebar = () => {
               key={link.name}
               to={link.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 p-3 rounded ${
-                  isActive ? "bg-white text-indigo-600" : "hover:bg-indigo-500"
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                  isActive
+                    ? "bg-white text-indigo-700 font-semibold shadow"
+                    : "hover:bg-indigo-600"
                 }`
               }
             >

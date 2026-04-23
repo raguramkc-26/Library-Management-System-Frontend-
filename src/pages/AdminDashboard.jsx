@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import instance from "../instances/instance";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -12,117 +12,123 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAll();
+    fetchData();
   }, []);
 
-  const fetchAll = async () => {
-  try {
-    const statsRes = await instance.get("/admin/stats");
-    setStats(statsRes.data);
-
-    const recentRes = await instance.get("/admin/recent");
-    setRecent(recentRes.data);
-
-    const topRes = await instance.get("/admin/top-books");
-    setTopBooks(topRes.data);
-
-  } catch (err) {
-    console.error("Dashboard error:", err);
-    toast.error(err.response?.data?.message || "Failed to load dashboard");
-  } finally {
-    setLoading(false);
-  }
-};
-  const handleNotifyAll = async () => {
-    const message = prompt("Enter notification message");
-
-    if (!message) return;
-
+  const fetchData = async () => {
     try {
-      await instance.post("/admin/notify-all", { message });
-      toast.success("Notification sent to all users");
+      const statsRes = await instance.get("/admin/stats");
+      setStats(statsRes.data);
+
+      const recentRes = await instance.get("/admin/recent");
+      setRecent(recentRes.data);
+
+      const topRes = await instance.get("/admin/top-books");
+      setTopBooks(topRes.data);
     } catch (err) {
-      toast.error("Failed to send notification");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Dashboard failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p className="p-6">Loading dashboard...</p>;
+  if (loading) return <Skeleton />;
 
   return (
-    <div className="p-6">
+    <div className="space-y-6">
 
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
       {/* STATS */}
-      <div className="grid md:grid-cols-5 gap-4 mb-6">
-        <Card title="Books" value={stats.totalBooks || 0} />
-        <Card title="Users" value={stats.totalUsers || 0} />
-        <Card title="Borrowed" value={stats.borrowed || 0} />
-        <Card title="Overdue" value={stats.overdue || 0} />
-        <Card title="Revenue" value={`₹${stats.revenue || 0}`} />
+      <div className="grid md:grid-cols-5 gap-4">
+        <Card title="Books" value={stats.totalBooks} color="bg-indigo-600" />
+        <Card title="Users" value={stats.totalUsers} color="bg-green-600" />
+        <Card title="Borrowed" value={stats.borrowed} color="bg-yellow-500" />
+        <Card title="Overdue" value={stats.overdue} color="bg-red-500" />
+        <Card title="Revenue" value={`₹${stats.revenue}`} color="bg-purple-600" />
       </div>
 
       {/* ACTIONS */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex gap-4">
         <button
           onClick={() => navigate("/admin/add-book")}
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
+          className="btn"
         >
           Add Book
         </button>
 
         <button
-          onClick={handleNotifyAll}
-          className="bg-green-600 text-white px-4 py-2 rounded"
+          onClick={() => alert("Add notification UI")}
+          className="btn bg-green-600 hover:bg-green-700"
         >
           Notify All
         </button>
       </div>
 
-      {/* RECENT + TOP */}
+      {/* CONTENT */}
       <div className="grid md:grid-cols-2 gap-6">
 
-        {/* RECENT */}
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="mb-4 font-semibold">Recent Activity</h2>
-
+        <Section title="Recent Activity">
           {recent.length === 0 ? (
-            <p>No activity</p>
+            <Empty />
           ) : (
             recent.map((r) => (
-              <div key={r._id} className="flex justify-between py-2 border-b">
-                <p>{r.book?.title || "Unknown"}</p>
-                <span>{r.status}</span>
-              </div>
+              <Item key={r._id} left={r.book?.title} right={r.status} />
             ))
           )}
-        </div>
+        </Section>
 
-        {/* TOP BOOKS */}
-        <div className="bg-white p-6 rounded-xl shadow">
-          <h2 className="mb-4 font-semibold">Top Books</h2>
-
+        <Section title="Top Books">
           {topBooks.length === 0 ? (
-            <p>No data</p>
+            <Empty />
           ) : (
             topBooks.map((b, i) => (
-              <div key={i} className="flex justify-between py-2 border-b">
-                <p>{b.book?.title || "Unknown Book"}</p>
-                <span>{b.count} borrows</span>
-              </div>
+              <Item key={i} left={b.book?.title} right={`${b.count} borrows`} />
             ))
           )}
-        </div>
+        </Section>
 
       </div>
     </div>
   );
 };
 
-const Card = ({ title, value }) => (
-  <div className="bg-white p-4 rounded-xl shadow">
-    <p className="text-sm text-gray-500">{title}</p>
-    <h2 className="text-xl font-bold">{value}</h2>
+/* COMPONENTS */
+
+const Card = ({ title, value, color }) => (
+  <div className={`p-5 rounded-xl text-white shadow ${color}`}>
+    <p className="text-sm opacity-80">{title}</p>
+    <h2 className="text-xl font-bold">{value || 0}</h2>
+  </div>
+);
+
+const Section = ({ title, children }) => (
+  <div className="bg-white p-6 rounded-xl shadow">
+    <h2 className="font-semibold mb-4">{title}</h2>
+    {children}
+  </div>
+);
+
+const Item = ({ left, right }) => (
+  <div className="flex justify-between border-b py-2">
+    <p>{left || "Unknown"}</p>
+    <span className="text-sm text-gray-500">{right}</span>
+  </div>
+);
+
+const Empty = () => (
+  <p className="text-gray-400 text-center py-4">No data</p>
+);
+
+const Skeleton = () => (
+  <div className="animate-pulse space-y-4">
+    <div className="h-6 bg-gray-300 w-1/3 rounded"></div>
+    <div className="grid md:grid-cols-5 gap-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="h-20 bg-gray-300 rounded"></div>
+      ))}
+    </div>
   </div>
 );
 

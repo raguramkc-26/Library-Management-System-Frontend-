@@ -6,19 +6,15 @@ const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
 
-      {/* SIDEBAR */}
       <Sidebar />
 
-      {/* RIGHT SIDE */}
       <div className="flex-1 flex flex-col">
 
-        {/* TOPBAR */}
         <Topbar />
 
-        {/* MAIN CONTENT */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           <Outlet />
-        </div>
+        </main>
 
       </div>
     </div>
