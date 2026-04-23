@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("AUTH USER:", user);
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
@@ -17,8 +16,7 @@ export const AuthProvider = ({ children }) => {
     (async () => {
       try {
         const res = await instance.get("/auth/getMe");
-        const userData = res.data?.data || res.data?.user || res.data;
-        setUser(res?.data?.user || null);
+        setUser(userData || null); 
       } catch {
         setUser(null);
       } finally {
@@ -26,6 +24,10 @@ export const AuthProvider = ({ children }) => {
       }
     })();
   }, []);
+
+  useEffect(() => {
+  console.log("AUTH USER:", user);
+}, [user]);
 
   const login = (userData) => setUser(userData);
 
