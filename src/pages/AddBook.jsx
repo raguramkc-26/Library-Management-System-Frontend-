@@ -116,24 +116,29 @@ const AddBook = () => {
         />
 
         {/* IMAGE */}
-        <div>
-          <label className="block mb-2 font-medium">Book Image</label>
+        <div className="space-y-3">
+  <label className="font-medium">Book Image</label>
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="border p-2 rounded w-full"
-          />
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-lg file:border-0
+      file:text-sm file:font-semibold
+      file:bg-indigo-50 file:text-indigo-700
+      hover:file:bg-indigo-100"
+  />
 
-          {preview && (
-            <img
-              src={preview}
-              alt="preview"
-              className="mt-4 w-40 h-52 object-cover rounded shadow"
-            />
-          )}
-        </div>
+  {preview && (
+    <img
+      src={preview}
+      alt="Preview"
+      className="w-40 h-56 object-cover rounded-lg shadow"
+    />
+  )}
+</div>
 
         <div className="flex justify-end">
           <button
