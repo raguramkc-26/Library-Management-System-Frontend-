@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AUTH USER:", user);
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
@@ -41,6 +42,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-console.log("AUTH USER:", user);
 
 export const useAuth = () => useContext(AuthContext);
