@@ -28,11 +28,9 @@ const Login = () => {
 
     localStorage.setItem("token", response.token);
     const userData = response.user || response.data?.user || response.data;
-    login(response.user);
+    login(userData);
 
     toast.success("Login successful");
-
-    const role = response.user?.role;
 
     if (response.user?.role === "admin") {
       navigate("/admin/dashboard");
