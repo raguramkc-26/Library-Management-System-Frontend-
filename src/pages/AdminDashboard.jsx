@@ -58,23 +58,6 @@ const AdminDashboard = () => {
       {/* CHART */}
       <AdminChart data={chartData} />
 
-      {/* ACTIONS */}
-      <div className="flex gap-4">
-        <button
-          onClick={() => navigate("/admin/add-book")}
-          className="btn"
-        >
-          Add Book
-        </button>
-
-        <button
-          onClick={() => alert("Add notification UI")}
-          className="btn bg-green-600 hover:bg-green-700"
-        >
-          Notify All
-        </button>
-      </div>
-
       {/* CONTENT */}
       <div className="grid md:grid-cols-2 gap-6">
 
