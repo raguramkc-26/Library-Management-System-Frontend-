@@ -14,12 +14,13 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const res = await getMe();
-      setUser(res?.user || res?.data || null);
+      setUser(data.user);
 
       const borrows = await instance.get("/borrow/me");
       setBorrowings(borrows.data?.data || borrows.data?.borrowings || []);
     } catch (err) {
-      toast.error("Failed to load profile");
+      console.log("PROFILE ERROR:", err);
+      toast.error(err.response?.data?.message || "Failed to load profile");
     } finally {
       setLoading(false);
     }
