@@ -26,7 +26,7 @@ const BookDetails = () => {
       ]);
 
       setBook(bookRes.data);
-      setReviews(reviewRes.data.reviews || []);
+      setReviews(reviewRes.data.data || []);
     } catch {
       toast.error("Failed to load book");
     }

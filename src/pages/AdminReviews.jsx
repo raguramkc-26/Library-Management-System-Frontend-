@@ -11,7 +11,8 @@ const AdminReviews = () => {
       const res = await instance.get("/reviews/pending");
       setReviews(res.data.data || []);
     } catch (err) {
-      toast.error("Failed to load reviews");
+      toast.error(err.response?.data?.message || "Failed to load reviews");
+      console.error(err);
     } finally {
       setLoading(false);
     }

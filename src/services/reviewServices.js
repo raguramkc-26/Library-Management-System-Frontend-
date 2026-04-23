@@ -3,7 +3,7 @@ import instance from "../instances/instance";
 // public
 export const getReviews = async (bookId) => {
   const res = await instance.get(`/reviews/${bookId}`);
-  return res.data.reviews;
+  return res.data.data || [];
 };
 
 export const getAverageRating = async (bookId) => {
