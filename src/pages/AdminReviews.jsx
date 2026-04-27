@@ -4,82 +4,85 @@ import { toast } from "react-toastify";
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchReviews = async () => {
-    try {
-      const res = await instance.get("/reviews/pending");
-      setReviews(res.data.data || []);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to load reviews");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchReviews();
   }, []);
 
-  const handleAction = async (id, action) => {
+  const fetchReviews = async () => {
     try {
-      await instance.patch(`/reviews/${id}/${action}`);
-      toast.success(`Review ${action}d`);
-      fetchReviews();
-    } catch {
-      toast.error("Action failed");
+      setLoading(true);
+      const res = await instance.get("/reviews/pending");
+      setReviews(res.data.data || []);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to load reviews");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  const handleApprove = async (id) => {
+    try {
+      await instance.patch(`/reviews/${id}/approve`);
+      toast.success("Review approved");
+      fetchReviews();
+    } catch {
+      toast.error("Approve failed");
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await instance.patch(`/reviews/${id}/reject`);
+      toast.success("Review rejected");
+      fetchReviews();
+    } catch {
+      toast.error("Reject failed");
+    }
+  };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Pending Reviews</h2>
 
-      {!loading && reviews.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">
-          <p className="text-lg">No pending reviews</p>
-        </div>
+      <h1 className="text-2xl font-bold mb-6">Pending Reviews</h1>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : reviews.length === 0 ? (
+        <p className="text-gray-400 text-center">No pending reviews</p>
       ) : (
         <div className="space-y-4">
           {reviews.map((r) => (
             <div
               key={r._id}
-              className="bg-white p-5 rounded-xl shadow border"
+              className="bg-white p-4 rounded shadow border"
             >
-              {/* HEADER */}
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <p className="font-semibold">{r.book?.title}</p>
-                  <p className="text-sm text-gray-500">
-                    by {r.user?.name}
-                  </p>
-                </div>
-
-                {/* RATING */}
-                <div className="text-yellow-400 text-sm">
+              <div className="flex justify-between mb-2">
+                <p className="font-semibold">{r.user?.name}</p>
+                <span className="text-yellow-500">
                   {"★".repeat(r.rating)}
-                  {"☆".repeat(5 - r.rating)}
-                </div>
+                </span>
               </div>
 
-              {/* COMMENT */}
-              <p className="text-gray-700 mb-4">{r.comment}</p>
+              <p className="text-gray-700 mb-2">{r.comment}</p>
 
-              {/* ACTIONS */}
+              <p className="text-sm text-gray-500 mb-3">
+                Book: {r.book?.title}
+              </p>
+
               <div className="flex gap-3">
                 <button
-                  onClick={() => handleAction(r._id, "approve")}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                  onClick={() => handleApprove(r._id)}
+                  className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Approve
                 </button>
 
                 <button
-                  onClick={() => handleAction(r._id, "reject")}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                  onClick={() => handleReject(r._id)}
+                  className="bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Reject
                 </button>
@@ -88,6 +91,7 @@ const AdminReviews = () => {
           ))}
         </div>
       )}
+
     </div>
   );
 };
