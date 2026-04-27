@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const login = (userData, token) => {
-    localStorage.setItem("token", token);
     setUser(userData);
   }
 
@@ -30,7 +29,6 @@ export const AuthProvider = ({ children }) => {
         const res = await instance.get("/auth/getMe");
         setUser(res.data.user);
       } catch (err) {
-        console.error("Auth load failed:", err.response?.data || err.message);
         setUser(null);
       } finally {
         setLoading(false);
@@ -41,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
