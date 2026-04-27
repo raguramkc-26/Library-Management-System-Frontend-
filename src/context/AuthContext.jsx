@@ -5,17 +5,25 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await instance.get("/auth/me");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setUser(null);
+          return;
+        }
+
+        const res = await instance.get("/auth/getMe");
         setUser(res.data.user);
-      } catch {
+      } catch (err) {
+        console.error("Auth load failed:", err.response?.data || err.message);
         setUser(null);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 

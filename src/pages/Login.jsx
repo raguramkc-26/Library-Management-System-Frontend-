@@ -28,6 +28,7 @@ const Login = () => {
 
     // SAVE TOKEN
     localStorage.setItem("token", token);
+    setUser(user);
 
     const user = me.user || me.data?.user;
 
