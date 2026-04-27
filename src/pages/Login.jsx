@@ -29,8 +29,6 @@ const Login = () => {
     // SAVE TOKEN
     localStorage.setItem("token", token);
 
-    // ALWAYS FETCH USER FROM BACKEND
-    const me = await getMe();
     const user = me.user || me.data?.user;
 
     if (!user) throw new Error("User not found");
