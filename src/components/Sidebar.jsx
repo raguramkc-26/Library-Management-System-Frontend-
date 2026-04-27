@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 
 const Sidebar = () => {
   const { user } = useAuth();
+  if (user?.role === "admin")
 
   const userLinks = [
     { name: "Home", path: "/dashboard", icon: Home },

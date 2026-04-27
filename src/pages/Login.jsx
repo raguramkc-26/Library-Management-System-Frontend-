@@ -34,8 +34,6 @@ const Login = () => {
     navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard");
 
   } catch (err) {
-    console.log("Login Error:", err);
-
     toast.error(
       err?.response?.data?.message || err.message || "Login failed"
     );

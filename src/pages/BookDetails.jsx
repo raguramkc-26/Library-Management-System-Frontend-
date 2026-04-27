@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const BookDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
-
+  if(user?.role === "admin")
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);

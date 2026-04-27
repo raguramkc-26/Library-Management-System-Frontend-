@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const Books = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+    if(user?.role === "admin")
   const isAdmin = user?.role === "admin";
 
   const [books, setBooks] = useState([]);
