@@ -18,28 +18,37 @@ const Login = () => {
   e.preventDefault();
 
   try {
-    const response = await loginUser(formData);
+    const res = await loginUser(formData);
 
-    console.log("LOGIN RESPONSE:", response);
+    console.log("LOGIN RESPONSE:", res);
 
-    if (!response.token) {
-      throw new Error("Token not received");
-    }
+    // standardize response
+    const token = res.token || res.data?.token;
+    if (!token) throw new Error("Token not received");
 
-    localStorage.setItem("token", response.token);
-    const userData = response.user || response.data?.user || response.data;
-    login(userData);
+    // SAVE TOKEN
+    localStorage.setItem("token", token);
+
+    // ALWAYS FETCH USER FROM BACKEND
+    const me = await getMe();
+    const user = me.user || me.data?.user;
+
+    if (!user) throw new Error("User not found");
+
+    // SAVE TO CONTEXT
+    login(user);
 
     toast.success("Login successful");
 
-    if (response.user?.role === "admin") {
+    // ROLE-BASED REDIRECT
+    if (user.role === "admin") {
       navigate("/admin/dashboard");
     } else {
       navigate("/dashboard");
     }
 
   } catch (error) {
-    console.error(error);
+    console.error("Login Error:", error);
 
     toast.error(
       error.response?.data?.message || error.message || "Login failed"
