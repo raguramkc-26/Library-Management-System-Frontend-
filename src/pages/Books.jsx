@@ -7,7 +7,6 @@ import { useAuth } from "../context/AuthContext";
 const Books = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const isAdmin = user?.role === "admin";
 
   const [books, setBooks] = useState([]);
@@ -18,12 +17,10 @@ const Books = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Debounce search
   useEffect(() => {
     const delay = setTimeout(() => {
       fetchBooks();
     }, 400);
-
     return () => clearTimeout(delay);
   }, [keyword, genre, available, page]);
 
@@ -50,10 +47,8 @@ const Books = () => {
     setPage(1);
   };
 
-  // DELETE (ADMIN)
   const handleDelete = async (id, e) => {
-    e.stopPropagation(); // prevent card click
-
+    e.stopPropagation();
     if (!window.confirm("Delete this book?")) return;
 
     try {
@@ -65,7 +60,6 @@ const Books = () => {
     }
   };
 
-  // EDIT (ADMIN)
   const handleEdit = (id, e) => {
     e.stopPropagation();
     navigate(`/admin/edit-book/${id}`);
@@ -75,27 +69,31 @@ const Books = () => {
     <div className="max-w-6xl mx-auto p-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Books</h1>
 
         {isAdmin && (
           <button
             onClick={() => navigate("/admin/add-book")}
-            className="bg-indigo-600 text-white px-4 py-2 rounded"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
           >
             + Add Book
           </button>
         )}
       </div>
 
+      {/* GUIDE TEXT */}
+      <p className="text-gray-500 mb-6">
+        Browse books. Click a book to borrow or add a review.
+      </p>
+
       {/* FILTERS */}
       <div className="grid md:grid-cols-4 gap-4 mb-6">
-
         <input
           placeholder="Search by title / author"
           value={keyword}
           onChange={handleFilterChange(setKeyword)}
-          className="border p-2 rounded w-full"
+          className="border p-2 rounded"
         />
 
         <select
@@ -117,28 +115,27 @@ const Books = () => {
           <option value="true">Available</option>
           <option value="false">Borrowed</option>
         </select>
-
       </div>
 
-      {/* BOOK LIST */}
+      {/* LIST */}
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-center text-gray-500">Loading books...</p>
       ) : books.length === 0 ? (
-        <p>No books found</p>
+        <p className="text-center text-gray-500">No books found</p>
       ) : (
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-6">
           {books.map((b) => (
             <div
               key={b._id}
               onClick={() => navigate(`/book/${b._id}`)}
-              className="bg-white p-4 rounded shadow hover:shadow-md cursor-pointer transition"
+              className="bg-white p-5 rounded-xl shadow hover:shadow-lg hover:scale-[1.02] transition cursor-pointer"
             >
-              <h3 className="font-bold">{b.title}</h3>
-              <p className="text-sm text-gray-600">{b.author}</p>
-              <p className="text-xs mt-2">{b.genre}</p>
+              <h3 className="font-bold text-lg">{b.title}</h3>
+              <p className="text-gray-600 text-sm">{b.author}</p>
+              <p className="text-xs mt-2 text-gray-500">{b.genre}</p>
 
               <span
-                className={`text-xs mt-2 inline-block font-medium ${
+                className={`mt-3 inline-block text-sm font-semibold ${
                   b.status === "Available"
                     ? "text-green-600"
                     : "text-red-600"
@@ -147,27 +144,23 @@ const Books = () => {
                 {b.status}
               </span>
 
-              {/* 🔥 ADMIN CONTROLS */}
               {isAdmin && (
                 <div className="flex gap-2 mt-3">
-
                   <button
                     onClick={(e) => handleEdit(b._id, e)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={(e) => handleDelete(b._id, e)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
                   >
                     Delete
                   </button>
-
                 </div>
               )}
-
             </div>
           ))}
         </div>
@@ -175,7 +168,6 @@ const Books = () => {
 
       {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
-
         <button
           onClick={() => setPage((p) => p - 1)}
           disabled={page === 1}
@@ -184,7 +176,7 @@ const Books = () => {
           Prev
         </button>
 
-        <span className="font-medium">
+        <span>
           Page {page} of {totalPages}
         </span>
 
@@ -195,7 +187,6 @@ const Books = () => {
         >
           Next
         </button>
-
       </div>
 
     </div>
