@@ -1,60 +1,79 @@
-# Library Management System (MERN Stack)
+Library Management System (MERN Stack)
+A full-stack Library Management System built using the MERN stack that allows users to browse books, borrow/reserve them, and submit reviews. Admins can manage books, users, and review approvals.
 
-A full-stack Library Management System built using the MERN stack that allows users to browse books, borrow/reserve them, and submit reviews, while admins can manage books, users, and platform activity.
+---
 
-## Demo Credentials
+Live Demo
+- Frontend: https://librarymanagementsystem.netlify.app
+- Backend API: https://library-management-system-backend-jkpg.onrender.com/api/v1
+
+---
+
+Demo Credentials
+
 User
-* Email: poona@gmail.com
-* Password: poona123
+- Email: poona@gmail.com
+- Password: poona123
 
 Admin
-* Email: chitra@gmail.com
-* Password: poona123
+- Email: chitra@gmail.com
+- Password: poona123
 
-## Features
+
+How to Test
+User Flow
+1. Login using user credentials
+2. Browse books from dashboard
+3. Click any book to view details
+4. Click "Borrow Book" (if available)
+5. If not available → click "Reserve"
+6. Add a review (rating + comment)
+7. View borrow history
+
+Admin Flow
+1. Login using admin credentials
+2. Add / Edit / Delete books
+3. Navigate to Reviews section
+4. Approve / Reject user reviews
+5. Manage users
+
+Features
 User Features
-* Register & Login (JWT Authentication)
-* Browse books with search & filters
-* View detailed book information
-* Borrow / Reserve books
-* Submit reviews (approval-based)
-* View borrow history
-* Receive notifications
+- Register & Login (JWT Authentication)
+- Browse books with search & filters
+- View detailed book information
+- Borrow / Reserve books
+- Submit reviews (approval-based)
+- View borrowing history
+- Receive notifications
 
 Admin Features
-* Admin dashboard with statistics
-* Add / Edit / Delete books
-* Manage users (role updates, delete)
-* Approve / Reject reviews
-* View top books & recent activity
-* Send notifications to all users
+- Admin dashboard
+- Add / Edit / Delete books
+- Manage users (role updates, delete)
+- Approve / Reject reviews
+- View activity & analytics
 
+🧱 Tech Stack
 
-## Image Handling
-* Integrated **Cloudinary** for image uploads
-* Stores secure image URLs in database
-* No local storage dependency
-
-
-## Tech Stack
 Frontend
-* React (Vite)
-* Tailwind CSS
-* Axios
-* React Router
+- React (Vite)
+- Tailwind CSS
+- Axios
+- React Router
 
 Backend
-* Node.js
-* Express.js
-* MongoDB (Mongoose)
-* JWT Authentication
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+- JWT Authentication
 
 Other Tools
-* Cloudinary (Image Storage)
-* Razorpay (Payments)
-* Nodemailer (Email Notifications)
-* Render (Backend Hosting)
-* Netlify (Frontend Hosting)
+- Cloudinary (Image Storage)
+- Razorpay (Payments)
+- Nodemailer (Email Notifications)
+- Render (Backend Hosting)
+- Netlify (Frontend Hosting)
 
 
 Project Structure
@@ -71,34 +90,34 @@ Project Structure
   /context
   /services
 
+---
 
-### Frontend (.env)
-VITE_API_URL=https://library-management-system-backend-jkpg.onrender.com/api/v1
-```
-### Backend (.env)
-VITE_API_URL=http://localhost:5173,https://librarymanagemsystem.netlify.app
+⚠️ Known Issues
+- Reviews require admin approval before display
+- Reservation triggers only when book is unavailable
+- UI is basic and can be further enhanced
 
-## Future Improvements
+🔮 Future Improvements
+- Advanced analytics dashboard (charts)
+- Real-time notifications (Socket.io)
+- Wishlist / Favorites
+- Infinite scroll & pagination improvements
+- Mobile UI optimization
 
-* Advanced analytics dashboard (charts)
-* Real-time notifications (Socket.io)
-* Wishlist / Favorites
-* Pagination & infinite scroll
-* Mobile UI optimization
+📝 Important Notes
+
+- ".env" files are not included for security reasons
+- Do not commit sensitive credentials
+- Images are stored using Cloudinary
 
 ---
 
-## Important Notes
+👨‍💻 Author
 
-* `.env` file is not included for security reasons
-* Uploaded images are stored in Cloudinary
-* Do not commit sensitive credentials
+Raguram KC
 
 ---
 
-## Author
+📬 API Documentation
 
-**Raguram Kc**
-
----
-POSTMAN API LINK: https://documenter.getpostman.com/view/11270312/2sBXqDuPWg
+https://documenter.getpostman.com/view/11270312/2sBXqDuPWg
