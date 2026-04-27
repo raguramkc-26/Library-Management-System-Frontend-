@@ -1,16 +1,104 @@
-# React + Vite
+# Library Management System (MERN Stack)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack Library Management System built using the MERN stack that allows users to browse books, borrow/reserve them, and submit reviews, while admins can manage books, users, and platform activity.
 
-Currently, two official plugins are available:
+## Demo Credentials
+User
+* Email: poona@gmail.com
+* Password: poona123
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Admin
+* Email: chitra@gmail.com
+* Password: poona123
 
-## React Compiler
+## Features
+User Features
+* Register & Login (JWT Authentication)
+* Browse books with search & filters
+* View detailed book information
+* Borrow / Reserve books
+* Submit reviews (approval-based)
+* View borrow history
+* Receive notifications
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Admin Features
+* Admin dashboard with statistics
+* Add / Edit / Delete books
+* Manage users (role updates, delete)
+* Approve / Reject reviews
+* View top books & recent activity
+* Send notifications to all users
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Image Handling
+* Integrated **Cloudinary** for image uploads
+* Stores secure image URLs in database
+* No local storage dependency
+
+
+## Tech Stack
+Frontend
+* React (Vite)
+* Tailwind CSS
+* Axios
+* React Router
+
+Backend
+* Node.js
+* Express.js
+* MongoDB (Mongoose)
+* JWT Authentication
+
+Other Tools
+* Cloudinary (Image Storage)
+* Razorpay (Payments)
+* Nodemailer (Email Notifications)
+* Render (Backend Hosting)
+* Netlify (Frontend Hosting)
+
+
+Project Structure
+/backend
+  /controllers
+  /models
+  /routes
+  /middlewares
+  /utils
+
+/frontend
+  /components
+  /pages
+  /context
+  /services
+
+
+### Frontend (.env)
+VITE_API_URL=https://library-management-system-backend-jkpg.onrender.com/api/v1
+```
+### Backend (.env)
+VITE_API_URL=http://localhost:5173,https://librarymanagemsystem.netlify.app
+
+## Future Improvements
+
+* Advanced analytics dashboard (charts)
+* Real-time notifications (Socket.io)
+* Wishlist / Favorites
+* Pagination & infinite scroll
+* Mobile UI optimization
+
+---
+
+## Important Notes
+
+* `.env` file is not included for security reasons
+* Uploaded images are stored in Cloudinary
+* Do not commit sensitive credentials
+
+---
+
+## Author
+
+**Raguram Kc**
+
+---
+POSTMAN API LINK: https://documenter.getpostman.com/view/11270312/2sBXqDuPWg
