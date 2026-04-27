@@ -4,8 +4,8 @@ A full-stack Library Management System built using the MERN stack that allows us
 ---
 
 Live Demo
-- Frontend: https://librarymanagementsystem.netlify.app
-- Backend API: https://library-management-system-backend-jkpg.onrender.com/api/v1
+- Frontend: https://librarymanagemsystem.netlify.app/login
+- Backend API: https://library-management-system-backend-jkpg.onrender.com
 
 ---
 
