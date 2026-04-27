@@ -57,110 +57,124 @@ const Books = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+  <div className="max-w-7xl mx-auto p-6">
 
-      {/* HEADER */}
-      <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold">Books</h1>
+    {/* HEADER */}
+    <div className="flex justify-between items-center mb-8">
+      <h1 className="text-3xl font-bold text-gray-800">📚 Books</h1>
 
-        {isAdmin && (
-          <button
-            onClick={() => navigate("/admin/add-book")}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+      {isAdmin && (
+        <button
+          onClick={() => navigate("/admin/add-book")}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg shadow"
+        >
+          + Add Book
+        </button>
+      )}
+    </div>
+
+    {/* FILTERS */}
+    <div className="grid md:grid-cols-3 gap-4 mb-8">
+      <input
+        placeholder="🔍 Search books..."
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        className="border p-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-300"
+      />
+
+      <select
+        value={genre}
+        onChange={(e) => setGenre(e.target.value)}
+        className="border p-3 rounded-lg"
+      >
+        <option value="">All Genres</option>
+        <option value="Fiction">Fiction</option>
+        <option value="Non-Fiction">Non-Fiction</option>
+      </select>
+
+      <select
+        value={available}
+        onChange={(e) => setAvailable(e.target.value)}
+        className="border p-3 rounded-lg"
+      >
+        <option value="">All Status</option>
+        <option value="true">Available</option>
+        <option value="false">Borrowed</option>
+      </select>
+    </div>
+
+    {/* LIST */}
+    {loading ? (
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1,2,3,4,5,6].map((i) => (
+          <div key={i} className="animate-pulse bg-gray-200 h-60 rounded-xl"></div>
+        ))}
+      </div>
+    ) : books.length === 0 ? (
+      <div className="text-center py-20">
+        <p className="text-xl text-gray-500">No books found 📭</p>
+        <p className="text-sm text-gray-400">Try changing filters</p>
+      </div>
+    ) : (
+      <div className="grid md:grid-cols-3 gap-6">
+        {books.map((b) => (
+          <div
+            key={b._id}
+            onClick={() => navigate(`/book/${b._id}`)}
+            className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 cursor-pointer group"
           >
-            + Add Book
-          </button>
-        )}
-      </div>
-
-      {/* FILTERS */}
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
-        <input
-          placeholder="Search..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="border p-2 rounded"
-        />
-
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">All Genres</option>
-          <option value="Fiction">Fiction</option>
-          <option value="Non-Fiction">Non-Fiction</option>
-        </select>
-
-        <select
-          value={available}
-          onChange={(e) => setAvailable(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">All</option>
-          <option value="true">Available</option>
-          <option value="false">Borrowed</option>
-        </select>
-      </div>
-
-      {/* LIST */}
-      {loading ? (
-        <div className="animate-pulse h-20 bg-gray-200 rounded"></div>
-      ) : books.length === 0 ? (
-        <p className="text-center text-gray-400">No books found</p>
-      ) : (
-        <div className="grid md:grid-cols-3 gap-4">
-          {books.map((b) => (
-            <div
-              key={b._id}
-              onClick={() => navigate(`/book/${b._id}`)}
-              className="bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition cursor-pointer"
-            >
+            {/* IMAGE */}
+            <div className="overflow-hidden rounded-lg">
               <img
                 src={b.image || "https://via.placeholder.com/150"}
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/150";
-                }}
-                className="w-full h-40 object-cover rounded mb-3"
+                onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+                className="w-full h-44 object-cover group-hover:scale-105 transition"
               />
+            </div>
 
-              <h3 className="font-bold">{b.title}</h3>
+            {/* CONTENT */}
+            <div className="mt-4">
+              <h3 className="font-semibold text-lg text-gray-800">
+                {b.title}
+              </h3>
+
               <p className="text-sm text-gray-500">{b.author}</p>
 
+              {/* STATUS BADGE */}
               <span
-                className={`text-xs font-semibold ${
+                className={`inline-block mt-2 px-3 py-1 text-xs rounded-full font-semibold ${
                   b.status === "Available"
-                    ? "text-green-600"
-                    : "text-red-500"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-600"
                 }`}
               >
                 {b.status}
               </span>
-
-              {isAdmin && (
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={(e) => handleEdit(b._id, e)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={(e) => handleDelete(b._id, e)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
             </div>
-          ))}
-        </div>
-      )}
 
-    </div>
-  );
-};
+            {/* ADMIN */}
+            {isAdmin && (
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={(e) => handleEdit(b._id, e)}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 rounded text-xs"
+                >
+                  Edit
+                </button>
 
-export default Books;
+                <button
+                  onClick={(e) => handleDelete(b._id, e)}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-1 rounded text-xs"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
+}
+export default Books
