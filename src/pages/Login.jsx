@@ -14,7 +14,7 @@ const Login = () => {
         password: ""
     });
 
-   const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
   e.preventDefault();
 
   try {
@@ -22,24 +22,17 @@ const Login = () => {
 
     console.log("LOGIN RESPONSE:", res);
 
-    // standardize response
     const token = res.token || res.data?.token;
-    if (!token) throw new Error("Token not received");
+    const user = res.user || res.data?.user;
 
-    // SAVE TOKEN
-    localStorage.setItem("token", token);
-    setUser(user);
+    if (!token || !user) {
+      throw new Error("Invalid login response");
+    }
 
-    const user = me.user || me.data?.user;
-
-    if (!user) throw new Error("User not found");
-
-    // SAVE TO CONTEXT
-    login(user);
+    login(user, token);
 
     toast.success("Login successful");
 
-    // ROLE-BASED REDIRECT
     if (user.role === "admin") {
       navigate("/admin/dashboard");
     } else {
