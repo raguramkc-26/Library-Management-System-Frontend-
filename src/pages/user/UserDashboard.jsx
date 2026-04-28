@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import instance from "../../instances/instance";
 import { toast } from "react-toastify";
-
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
 
