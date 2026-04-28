@@ -3,7 +3,6 @@ import instance from "../../instances/instance";
 import { toast } from "react-toastify";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
-import Button from "../../components/ui/Button";
 
 const UserDashboard = () => {
   const [books, setBooks] = useState([]);
@@ -13,7 +12,6 @@ const UserDashboard = () => {
     returned: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -40,100 +38,70 @@ const UserDashboard = () => {
         returned: data.filter((b) => b.status === "returned").length,
       });
 
-    } catch (err) {
+    } catch {
       toast.error("Failed to load dashboard");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReturn = async (borrowId) => {
-    try {
-      setActionLoading(borrowId);
-
-      await instance.post(`/borrow/return/${borrowId}`);
-      toast.success("Returned successfully");
-
-      fetchData();
-    } catch (err) {
-      toast.error("Return failed");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   if (loading) return <Loader />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
 
-      <h1 className="text-2xl font-bold">My Dashboard</h1>
-
-      {/* STATS */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <Stat title="Active" value={stats.active} />
-        <Stat title="Overdue" value={stats.overdue} />
-        <Stat title="Returned" value={stats.returned} />
+      {/* HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold">My Dashboard</h1>
+        <p className="text-gray-500">Your reading overview</p>
       </div>
 
-      {/* BOOK LIST */}
-      <Card>
-        <h2 className="font-semibold mb-4">My Books</h2>
+      {/* STATS */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <StatCard title="Active" value={stats.active} color="bg-indigo-500" />
+        <StatCard title="Overdue" value={stats.overdue} color="bg-red-500" />
+        <StatCard title="Returned" value={stats.returned} color="bg-green-500" />
+      </div>
+
+      {/* BOOKS */}
+      <Card className="p-5 rounded-2xl shadow-lg">
+        <h2 className="text-lg font-semibold mb-4">My Books</h2>
 
         {books.length === 0 ? (
-          <p className="text-gray-400 text-center">
-            No books yet
-          </p>
+          <p className="text-gray-400 text-center">No books found</p>
         ) : (
-          books.map((b) => {
-            const isOverdue =
-              b.status === "borrowed" &&
-              new Date(b.dueDate) < new Date();
+          books.map((b) => (
+            <div
+              key={b._id}
+              className="flex justify-between items-center border-b py-3 hover:bg-gray-50 rounded-lg px-2 transition"
+            >
 
-            return (
-              <div
-                key={b._id}
-                className="flex gap-4 border-b py-4 items-center"
-              >
+              <div className="flex gap-4 items-center">
                 <img
-                  src={b.book?.image || "https://via.placeholder.com/40"}
-                  className="w-12 h-16 rounded object-cover"
+                  src={b.book?.image || "https://via.placeholder.com/50"}
+                  className="w-12 h-16 object-cover rounded"
                 />
 
-                <div className="flex-1">
+                <div>
                   <p className="font-medium">{b.book?.title}</p>
-
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-400">
                     Due: {new Date(b.dueDate).toLocaleDateString()}
                   </p>
-
-                  {isOverdue && (
-                    <p className="text-red-500 text-xs">
-                      Overdue
-                    </p>
-                  )}
-                </div>
-
-                {/* STATUS */}
-                <div className="text-right space-y-2">
-
-                  <span className="text-sm block">
-                    {b.status}
-                  </span>
-
-                  {b.status === "borrowed" && (
-                    <Button
-                      size="sm"
-                      loading={actionLoading === b._id}
-                      onClick={() => handleReturn(b._id)}
-                    >
-                      Return
-                    </Button>
-                  )}
                 </div>
               </div>
-            );
-          })
+
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  b.status === "borrowed"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {b.status}
+              </span>
+
+            </div>
+          ))
         )}
       </Card>
 
@@ -141,11 +109,11 @@ const UserDashboard = () => {
   );
 };
 
-const Stat = ({ title, value }) => (
-  <Card className="p-4 text-center">
-    <p className="text-gray-500">{title}</p>
-    <h2 className="text-xl font-bold">{value}</h2>
-  </Card>
+const StatCard = ({ title, value, color }) => (
+  <div className={`p-5 rounded-2xl text-white shadow-lg ${color}`}>
+    <p className="text-sm opacity-80">{title}</p>
+    <h2 className="text-3xl font-bold">{value}</h2>
+  </div>
 );
 
 export default UserDashboard;
