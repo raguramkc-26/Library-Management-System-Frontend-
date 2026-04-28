@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../instances/instance";
+import instance from "../../instances/instance";
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);

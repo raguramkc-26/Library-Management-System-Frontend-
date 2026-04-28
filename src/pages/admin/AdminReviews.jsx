@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import instance from "../instances/instance";
+import instance from "../../instances/instance";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 const AdminReviews = () => {
   const { user, loading } = useAuth();

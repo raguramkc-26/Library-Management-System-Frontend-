@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import instance from "../instances/instance";
+import instance from "../../instances/instance";
 import { toast } from "react-toastify";
 
 const EditBook = () => {

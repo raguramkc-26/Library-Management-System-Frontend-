@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import instance from "../instances/instance";
+import instance from "../../instances/instance";
 import { toast } from "react-toastify";
 
 const ResetPassword = () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUsers, updateUserRole, deleteUser } from "../services/userService";
+import { getUsers, updateUserRole, deleteUser } from "../../services/userService";
 import { toast } from "react-toastify";
 
 const AdminUsers = () => {

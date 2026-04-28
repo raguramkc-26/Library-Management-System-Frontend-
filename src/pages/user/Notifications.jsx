@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   getMyNotifications,
   markAsRead,
-} from "../services/notificationService";
+} from "../../services/notificationService";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
