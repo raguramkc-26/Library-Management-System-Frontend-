@@ -17,7 +17,8 @@ const Sidebar = () => {
 
   const userLinks = [
     { name: "Home", path: "/dashboard", icon: Home },
-    { name: "Books", path: "/dashboard/books", icon: Book },
+    { name: "Browse Books", path: "/dashboard/books", icon: Book },
+    { name: "My Borrowed Books", path: "/dashboard/borrowed", icon: Book },
     { name: "Profile", path: "/dashboard/profile", icon: User },
     { name: "Notifications", path: "/dashboard/notifications", icon: Bell },
   ];

@@ -71,7 +71,7 @@ const router = createBrowserRouter([
           { index: true, element: <UserDashboard /> },
           { path: "books", element: <Books /> },
           { path: "profile", element: <Profile /> },
-          { path: "payments", element: <PaymentHistory /> },
+          { path: "borrowed", element: <PaymentHistory /> },
           { path: "notifications", element: <Notifications /> },
         ],
       },

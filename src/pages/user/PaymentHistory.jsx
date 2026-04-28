@@ -1,48 +1,72 @@
 import { useEffect, useState } from "react";
 import instance from "../../instances/instance";
+import { toast } from "react-toastify";
+import Card from "../../components/ui/Card";
+import Loader from "../../components/ui/Loader";
+import EmptyState from "../../components/ui/EmptyState";
 
 const PaymentHistory = () => {
-  const [payments, setPayments] = useState([]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const res = await instance.get("/payment/history");
-        setPayments(res.data.data || []);
-      } catch {
-        console.error("Failed to fetch payments");
-      }
-    };
-
-    fetchPayments();
+    fetchBorrowed();
   }, []);
 
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Payment History</h1>
+  const fetchBorrowed = async () => {
+    try {
+      setLoading(true);
+      const res = await instance.get("/borrow/me");
+      setData(res?.data?.data || []);
+    } catch (err) {
+      toast.error("Failed to load borrowed books");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      {payments.length === 0 ? (
-        <p>No payments yet</p>
-      ) : (
-        <table className="w-full border">
-          <thead>
-            <tr>
-              <th>Book</th>
-              <th>Amount</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(p => (
-              <tr key={p._id}>
-                <td>{p.book?.title}</td>
-                <td>₹{p.fineAmount}</td>
-                <td>{new Date(p.updatedAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+  if (loading) return <Loader />;
+
+  if (data.length === 0)
+    return (
+      <EmptyState
+        title="No borrowed books"
+        subtitle="Start borrowing books"
+      />
+    );
+
+  return (
+    <div className="p-6 space-y-4">
+      <h1 className="text-xl font-bold">My Borrowed Books</h1>
+
+      {data.map((b) => (
+        <Card key={b._id}>
+          <div className="flex gap-4 items-center">
+
+            <img
+              src={b.book?.image || "https://via.placeholder.com/60"}
+              className="w-12 h-16 rounded"
+            />
+
+            <div className="flex-1">
+              <p className="font-semibold">{b.book?.title}</p>
+              <p className="text-sm text-gray-500">
+                Due: {new Date(b.dueDate).toLocaleDateString()}
+              </p>
+            </div>
+
+            <span
+              className={`text-xs font-semibold px-2 py-1 rounded ${
+                b.status === "returned"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-blue-100 text-blue-600"
+              }`}
+            >
+              {b.status}
+            </span>
+          </div>
+        </Card>
+      ))}
     </div>
   );
 };
