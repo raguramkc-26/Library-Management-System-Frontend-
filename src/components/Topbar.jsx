@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
 const Topbar = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const handleLogout = () => {
     logout();
