@@ -15,12 +15,13 @@ const BookDetails = () => {
 
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
   const [loading, setLoading] = useState(true);
-  const [borrowLoading, setBorrowLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
 
   useEffect(() => {
@@ -31,32 +32,41 @@ const BookDetails = () => {
     try {
       setLoading(true);
 
-      const [bookRes, reviewRes] = await Promise.all([
+      const [bookRes, reviewRes, avgRes] = await Promise.all([
         instance.get(`/books/${id}`),
         instance.get(`/reviews/${id}`),
+        instance.get(`/reviews/${id}/average`),
       ]);
 
-      setBook(bookRes?.data?.data || null);
-      setReviews(reviewRes?.data?.data || []);
+      const bookData = bookRes?.data?.data || bookRes?.data || null;
+
+      setBook(bookData);
+      setReviews(reviewRes?.data?.data || reviewRes?.data || []);
+      setAvgRating(avgRes?.data?.average || 0);
+
     } catch (err) {
-      toast.error("Failed to load book");
+      console.error("Fetch error:", err);
+      toast.error(err?.response?.data?.message || "Failed to load book");
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------- ACTIONS ----------------
+
   const handleBorrow = async () => {
     if (!user) return toast.error("Login required");
 
     try {
-      setBorrowLoading(true);
+      setActionLoading(true);
       await instance.post(`/borrow/${id}`);
       toast.success("Book borrowed");
       fetchData();
     } catch (err) {
+      console.error(err);
       toast.error(err?.response?.data?.message || "Borrow failed");
     } finally {
-      setBorrowLoading(false);
+      setActionLoading(false);
     }
   };
 
@@ -64,14 +74,31 @@ const BookDetails = () => {
     if (!user) return toast.error("Login required");
 
     try {
-      setBorrowLoading(true);
+      setActionLoading(true);
       await instance.post(`/reservation/${id}`);
       toast.success("Book reserved");
       fetchData();
     } catch (err) {
+      console.error(err);
       toast.error(err?.response?.data?.message || "Reserve failed");
     } finally {
-      setBorrowLoading(false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleReturn = async () => {
+    if (!user) return toast.error("Login required");
+
+    try {
+      setActionLoading(true);
+      await instance.post(`/borrow/return/${id}`);
+      toast.success("Book returned");
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Return failed");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -83,30 +110,33 @@ const BookDetails = () => {
     try {
       setReviewLoading(true);
 
-      await instance.post(`/reviews`, {
-        book: id,
+      await instance.post(`/reviews/${id}`, {
         rating,
         comment,
       });
 
       toast.success("Review submitted");
+
       setRating(0);
       setComment("");
+
       fetchData();
     } catch (err) {
+      console.error(err);
       toast.error(err?.response?.data?.message || "Review failed");
     } finally {
       setReviewLoading(false);
     }
   };
 
-  const avgRating =
-    reviews.length > 0
-      ? (
-          reviews.reduce((acc, r) => acc + (r.rating || 0), 0) /
-          reviews.length
-        ).toFixed(1)
-      : 0;
+  // ---------------- LOGIC ----------------
+
+  const isOwner =
+    book?.borrowedBy && user?._id
+      ? book.borrowedBy === user._id
+      : false;
+
+  // ---------------- STATES ----------------
 
   if (loading) return <Loader />;
 
@@ -118,6 +148,8 @@ const BookDetails = () => {
       />
     );
 
+  // ---------------- UI ----------------
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
 
@@ -127,6 +159,10 @@ const BookDetails = () => {
 
           <img
             src={book.image || "https://via.placeholder.com/200"}
+            onError={(e) =>
+              (e.target.src = "https://via.placeholder.com/200")
+            }
+            alt={book.title}
             className="w-full max-w-xs h-72 object-cover rounded mx-auto"
           />
 
@@ -139,7 +175,7 @@ const BookDetails = () => {
               ⭐ {avgRating} ({reviews.length} reviews)
             </p>
 
-            <p>{book.description}</p>
+            <p>{book.description || "No description available"}</p>
 
             <span className={`px-2 py-1 rounded text-sm ${
               book.status === "Available"
@@ -149,16 +185,49 @@ const BookDetails = () => {
               {book.status}
             </span>
 
-            <div className="flex gap-3">
-              {book.status === "Available" ? (
-                <Button onClick={handleBorrow} loading={borrowLoading}>
+            {!user && (
+              <p className="text-sm text-red-500">
+                Login to perform actions
+              </p>
+            )}
+
+            {/* ACTION BUTTONS */}
+            <div className="flex gap-3 flex-wrap">
+
+              {book.status === "Available" && (
+                <Button
+                  onClick={handleBorrow}
+                  loading={actionLoading}
+                  disabled={!user}
+                >
                   Borrow
                 </Button>
-              ) : (
-                <Button onClick={handleReserve} loading={borrowLoading}>
-                  Reserve
-                </Button>
               )}
+
+              {book.status === "Borrowed" && (
+                <>
+                  {!isOwner && (
+                    <Button
+                      onClick={handleReserve}
+                      loading={actionLoading}
+                      disabled={!user}
+                    >
+                      Reserve
+                    </Button>
+                  )}
+
+                  {isOwner && (
+                    <Button
+                      onClick={handleReturn}
+                      loading={actionLoading}
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Return Book
+                    </Button>
+                  )}
+                </>
+              )}
+
             </div>
 
           </div>
@@ -179,13 +248,14 @@ const BookDetails = () => {
           </div>
 
           <textarea
+            placeholder="Write your review..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="w-full border p-2 rounded mb-3"
           />
 
           <Button onClick={handleReview} loading={reviewLoading}>
-            Submit
+            Submit Review
           </Button>
         </Card>
       )}
@@ -199,8 +269,11 @@ const BookDetails = () => {
         ) : (
           reviews.map((r) => (
             <div key={r._id} className="border-b py-3">
-              <p className="font-medium">{r.user?.name}</p>
-              <p>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</p>
+              <p className="font-medium">{r.user?.name || "User"}</p>
+              <p>
+                {"★".repeat(r.rating || 0)}
+                {"☆".repeat(5 - (r.rating || 0))}
+              </p>
               <p>{r.comment}</p>
             </div>
           ))
