@@ -6,6 +6,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  Legend,
 } from "recharts";
 
 const months = [
@@ -14,40 +15,83 @@ const months = [
 ];
 
 const AdminChart = ({ data }) => {
-  if (!data || data.length === 0) {
-    return (
-      <div className="bg-white p-6 rounded-xl shadow text-center text-gray-400">
-        No chart data available
-      </div>
-    );
-  }
 
-  const formatted = data.map((item) => ({
-    month: months[item._id - 1],
-    borrows: item.count,
-  }));
+  // ✅ SAFE FORMAT (handles missing months)
+  const formatted = months.map((month, index) => {
+    const item = data?.find((d) => d._id === index + 1);
+
+    return {
+      month,
+      borrows: item?.borrows || item?.count || 0,
+      overdue: item?.overdue || 0,
+      revenue: item?.revenue || 0,
+    };
+  });
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg">
-      <h2 className="mb-4 font-semibold text-lg">
-        Monthly Borrow Trends
-      </h2>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={formatted}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="borrows"
-            stroke="#4f46e5"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="font-semibold text-lg">
+          Library Analytics
+        </h2>
+
+        <span className="text-sm text-gray-400">
+          Monthly overview
+        </span>
+      </div>
+
+      {formatted.every((d) => d.borrows === 0) ? (
+        <p className="text-center text-gray-400 py-10">
+          No analytics data available
+        </p>
+      ) : (
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={formatted}>
+
+            <CartesianGrid strokeDasharray="3 3" />
+
+            <XAxis dataKey="month" />
+            <YAxis />
+
+            <Tooltip
+              contentStyle={{
+                borderRadius: "10px",
+                border: "none",
+              }}
+            />
+
+            <Legend />
+
+            {/* BORROWS */}
+            <Line
+              type="monotone"
+              dataKey="borrows"
+              stroke="#6366f1"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+            />
+
+            {/* OVERDUE */}
+            <Line
+              type="monotone"
+              dataKey="overdue"
+              stroke="#ef4444"
+              strokeWidth={2}
+            />
+
+            {/* REVENUE */}
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              stroke="#10b981"
+              strokeWidth={2}
+            />
+
+          </LineChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 };
