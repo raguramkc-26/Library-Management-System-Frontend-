@@ -5,14 +5,9 @@ import Loader from "../../components/ui/Loader";
 import { toast } from "react-toastify";
 
 const AdminDashboard = () => {
-  const [data, setData] = useState({
-    books: 0,
-    users: 0,
-    borrowed: 0,
-    overdue: 0,
-    revenue: 0,
-  });
-
+  const [stats, setStats] = useState(null);
+  const [recent, setRecent] = useState([]);
+  const [topBooks, setTopBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,8 +16,17 @@ const AdminDashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const res = await instance.get("/admin/dashboard");
-      setData(res?.data?.data || res?.data);
+      setLoading(true);
+
+      const [statsRes, recentRes, topRes] = await Promise.all([
+        instance.get("/admin/stats"),
+        instance.get("/admin/recent"),
+        instance.get("/admin/top-books"),
+      ]);
+
+      setStats(statsRes?.data || {});
+      setRecent(recentRes?.data || []);
+      setTopBooks(topRes?.data || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load dashboard");
@@ -33,52 +37,57 @@ const AdminDashboard = () => {
 
   if (loading) return <Loader />;
 
+  if (!stats) return <p className="p-6">No data</p>;
+
   return (
     <div className="p-6 space-y-6">
 
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
       {/* STATS */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-
-        <StatCard title="Books" value={data.books} color="blue" />
-        <StatCard title="Users" value={data.users} color="green" />
-        <StatCard title="Borrowed" value={data.borrowed} color="yellow" />
-        <StatCard title="Overdue" value={data.overdue} color="red" />
-        <StatCard title="Revenue" value={`₹${data.revenue}`} color="purple" />
-
+      <div className="grid md:grid-cols-5 gap-4">
+        <Stat title="Books" value={stats.books} />
+        <Stat title="Users" value={stats.users} />
+        <Stat title="Borrowed" value={stats.borrowed} />
+        <Stat title="Overdue" value={stats.overdue} />
+        <Stat title="Revenue" value={`₹${stats.revenue}`} />
       </div>
 
-      {/* QUICK INSIGHT */}
+      {/* RECENT ACTIVITY */}
       <Card className="p-4">
-        <h2 className="font-semibold mb-2">System Insight</h2>
+        <h2 className="font-semibold mb-3">Recent Activity</h2>
+        {recent.length === 0 ? (
+          <p className="text-gray-400">No activity</p>
+        ) : (
+          recent.map((r, i) => (
+            <p key={i} className="text-sm border-b py-2">
+              {r.message || JSON.stringify(r)}
+            </p>
+          ))
+        )}
+      </Card>
 
-        <p className="text-sm text-gray-600">
-          {data.overdue > 0
-            ? `⚠️ ${data.overdue} overdue books need attention`
-            : "All books are returned on time"}
-        </p>
+      {/* TOP BOOKS */}
+      <Card className="p-4">
+        <h2 className="font-semibold mb-3">Top Books</h2>
+        {topBooks.length === 0 ? (
+          <p className="text-gray-400">No data</p>
+        ) : (
+          topBooks.map((b) => (
+            <p key={b._id} className="border-b py-2">
+              {b.title}
+            </p>
+          ))
+        )}
       </Card>
 
     </div>
   );
 };
 
-const StatCard = ({ title, value, color }) => {
-  const colors = {
-    blue: "bg-blue-100 text-blue-700",
-    green: "bg-green-100 text-green-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    red: "bg-red-100 text-red-700",
-    purple: "bg-purple-100 text-purple-700",
-  };
-
-  return (
-    <Card className={`p-4 ${colors[color]}`}>
-      <p className="text-sm">{title}</p>
-      <h2 className="text-2xl font-bold">{value}</h2>
-    </Card>
-  );
-};
+const Stat = ({ title, value }) => (
+  <Card className="p-4 text-center">
+    <p className="text-gray-500 text-sm">{title}</p>
+    <h2 className="text-2xl font-bold">{value}</h2>
+  </Card>
+);
 
 export default AdminDashboard;
