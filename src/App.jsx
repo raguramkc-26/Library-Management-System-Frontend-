@@ -18,6 +18,7 @@ import Notifications from "./pages/Notifications";
 import Books from "./pages/Books";
 import AdminReviews from "./pages/AdminReviews";
 import AddBook from "./pages/AddBook";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/dashboard" /> },
@@ -70,10 +71,10 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <>
+    <ErrorBoundary>
       <RouterProvider router={router} />
       <ToastContainer />
-    </>
+    </ErrorBoundary>
   );
 };
 

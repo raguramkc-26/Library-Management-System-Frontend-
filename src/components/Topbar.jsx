@@ -6,7 +6,7 @@ const Topbar = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
     logout();
-    Navigate("/login");
+    navigate("/login");
   }
   return (
     <div className="flex justify-between items-center bg-white px-6 py-4 shadow">

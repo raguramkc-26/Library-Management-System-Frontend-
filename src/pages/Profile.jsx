@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext"
 import { getMe } from "../services/authServices";
 import instance from "../instances/instance";
 import { toast } from "react-toastify";
 const Profile = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [borrowings, setBorrowings] = useState([]);
   const [loading, setLoading] = useState(true);
 

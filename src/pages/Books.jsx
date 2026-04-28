@@ -8,7 +8,6 @@ const Books = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-
   const [books, setBooks] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [genre, setGenre] = useState("");
@@ -34,7 +33,7 @@ const Books = () => {
         params: { keyword, genre, available, page },
       });
 
-      const data = res.data?.books || res.data?.data || [];
+      const data = res.data.books
 
       setBooks(data);
       setTotalPages(res.data?.totalPages || 1);

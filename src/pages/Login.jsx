@@ -22,8 +22,8 @@ const Login = () => {
     setLoading(true);
     const res = await loginUser(formData);
 
-    const token = res?.token;
-    const user = res?.user;
+    const token = res?.token || res?.data?.token;
+    const user = res?.user || res?.data?.user;
 
     if (!token || !user) {
       throw new Error("Invalid login response");
