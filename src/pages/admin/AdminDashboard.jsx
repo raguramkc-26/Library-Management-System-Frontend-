@@ -1,127 +1,83 @@
 import { useEffect, useState } from "react";
 import instance from "../../instances/instance";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import AdminChart from "../../components/charts/AdminChart";
+import Card from "../../components/ui/Card";
+import Loader from "../../components/ui/Loader";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
+  const [data, setData] = useState({
+    books: 0,
+    users: 0,
+    borrowed: 0,
+    overdue: 0,
+    revenue: 0,
+  });
 
-  const [stats, setStats] = useState({});
-  const [recent, setRecent] = useState([]);
-  const [topBooks, setTopBooks] = useState([]);
-  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAll();
+    fetchDashboard();
   }, []);
 
-  const fetchAll = async () => {
+  const fetchDashboard = async () => {
     try {
-      const statsRes = await instance.get("/admin/stats");
-      setStats(statsRes.data);
-
-      const recentRes = await instance.get("/admin/recent");
-      setRecent(recentRes.data);
-
-      const topRes = await instance.get("/admin/top-books");
-      setTopBooks(topRes.data);
-
-      const chartRes = await instance.get("/admin/stats/monthly");
-      setChartData(chartRes.data);
-
+      const res = await instance.get("/admin/dashboard");
+      setData(res?.data?.data || res?.data);
     } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Dashboard failed");
+      console.error("Dashboard error", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <Skeleton />;
+  if (loading) return <Loader />;
 
   return (
     <div className="space-y-6">
 
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
+        <p className="text-gray-500 text-sm">
+          Overview of system performance
+        </p>
+      </div>
 
       {/* STATS */}
-      <div className="grid md:grid-cols-5 gap-4">
-        <Card title="Books" value={stats.totalBooks} color="bg-indigo-600" />
-        <Card title="Users" value={stats.totalUsers} color="bg-green-600" />
-        <Card title="Borrowed" value={stats.borrowed} color="bg-yellow-500" />
-        <Card title="Overdue" value={stats.overdue} color="bg-red-500" />
-        <Card title="Revenue" value={`₹${stats.revenue}`} color="bg-purple-600" />
-      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 
-      {/* CHART */}
-      <AdminChart data={chartData} />
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Books</p>
+          <h2 className="text-2xl font-bold">{data.books}</h2>
+        </Card>
 
-      {/* CONTENT */}
-      <div className="grid md:grid-cols-2 gap-6">
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Users</p>
+          <h2 className="text-2xl font-bold">{data.users}</h2>
+        </Card>
 
-        <Section title="Recent Activity">
-          {recent.length === 0 ? (
-            <Empty />
-          ) : (
-            recent.map((r) => (
-              <Item key={r._id} left={r.book?.title} right={r.status} />
-            ))
-          )}
-        </Section>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Borrowed</p>
+          <h2 className="text-2xl font-bold">{data.borrowed}</h2>
+        </Card>
 
-        <Section title="Top Books">
-          {topBooks.length === 0 ? (
-            <Empty />
-          ) : (
-            topBooks.map((b, i) => (
-              <Item key={i} left={b.book?.title} right={`${b.count} borrows`} />
-            ))
-          )}
-        </Section>
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Overdue</p>
+          <h2 className="text-2xl font-bold">{data.overdue}</h2>
+        </Card>
+
+        <Card className="p-4">
+          <p className="text-sm text-gray-500">Revenue</p>
+          <h2 className="text-2xl font-bold">₹{data.revenue}</h2>
+        </Card>
 
       </div>
+
+      <Card className="p-6 text-center text-gray-400">
+        Chart feature coming soon
+      </Card>
+
     </div>
   );
 };
-
-/* COMPONENTS */
-
-const Card = ({ title, value, color }) => (
-  <div className={`p-5 rounded-xl text-white shadow-lg ${color}`}>
-    <p className="text-sm opacity-80">{title}</p>
-    <h2 className="text-xl font-bold">{value || 0}</h2>
-  </div>
-);
-
-const Section = ({ title, children }) => (
-  <div className="bg-white p-6 rounded-xl shadow">
-    <h2 className="font-semibold mb-4">{title}</h2>
-    {children}
-  </div>
-);
-
-const Item = ({ left, right }) => (
-  <div className="flex justify-between border-b py-2">
-    <p>{left || "Unknown"}</p>
-    <span className="text-sm text-gray-500">{right}</span>
-  </div>
-);
-
-const Empty = () => (
-  <p className="text-gray-400 text-center py-4">No data</p>
-);
-
-const Skeleton = () => (
-  <div className="animate-pulse space-y-4">
-    <div className="h-6 bg-gray-300 w-1/3 rounded"></div>
-    <div className="grid md:grid-cols-5 gap-4">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="h-20 bg-gray-300 rounded"></div>
-      ))}
-    </div>
-  </div>
-);
 
 export default AdminDashboard;

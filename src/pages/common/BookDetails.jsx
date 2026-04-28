@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import instance from "../../instances/instance";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
+
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
@@ -14,6 +15,7 @@ const BookDetails = () => {
 
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
@@ -27,6 +29,7 @@ const BookDetails = () => {
     fetchData();
   }, [id]);
 
+  // FETCH
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -37,8 +40,8 @@ const BookDetails = () => {
         instance.get(`/reviews/${id}`),
       ]);
 
-      setBook(bookRes?.data?.data || bookRes?.data);
-      setReviews(reviewRes?.data?.data || []);
+      setBook(bookRes.data.data);
+      setReviews(reviewRes.data.data || []);
     } catch (err) {
       console.error(err);
       setError("Failed to load book");
@@ -48,6 +51,7 @@ const BookDetails = () => {
     }
   };
 
+  // BORROW
   const handleBorrow = async () => {
     if (!user) return toast.error("Login required");
 
@@ -63,6 +67,7 @@ const BookDetails = () => {
     }
   };
 
+  // RESERVE
   const handleReserve = async () => {
     if (!user) return toast.error("Login required");
 
@@ -70,6 +75,7 @@ const BookDetails = () => {
       setBorrowLoading(true);
       await instance.post(`/reservation`, { bookId: id });
       toast.success("Book reserved");
+      fetchData(); 
     } catch (err) {
       toast.error(err?.response?.data?.message || "Reserve failed");
     } finally {
@@ -77,6 +83,7 @@ const BookDetails = () => {
     }
   };
 
+  // REVIEW
   const handleReview = async () => {
     if (!user) return toast.error("Login required");
     if (!rating) return toast.error("Select rating");
@@ -92,8 +99,10 @@ const BookDetails = () => {
       });
 
       toast.success("Review submitted");
+
       setRating(0);
       setComment("");
+
       fetchData();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Review failed");
@@ -102,6 +111,7 @@ const BookDetails = () => {
     }
   };
 
+  // AVG RATING SAFE
   const avgRating =
     reviews.length > 0
       ? (
@@ -110,22 +120,21 @@ const BookDetails = () => {
         ).toFixed(1)
       : 0;
 
-  /* STATES */
-
+  // STATES
   if (loading) return <Loader />;
 
   if (error)
     return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   if (!book)
-    return <EmptyState title="Book not found" subtitle="Try another book" />;
-
-  /* UI */
+    return (
+      <EmptyState title="Book not found" subtitle="Try another book" />
+    );
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
 
-      {/* BOOK CARD */}
+      {/* BOOK INFO */}
       <Card>
         <div className="grid md:grid-cols-3 gap-6">
 
@@ -134,6 +143,7 @@ const BookDetails = () => {
             onError={(e) =>
               (e.target.src = "https://via.placeholder.com/200")
             }
+            alt={book.title}
             className="w-full max-w-xs h-72 object-cover rounded-lg mx-auto"
           />
 
@@ -174,16 +184,22 @@ const BookDetails = () => {
               </p>
             )}
 
+            {/* ACTION BUTTONS */}
             <div className="flex gap-3 flex-wrap pt-2">
 
               {book.status === "Available" ? (
-                <Button onClick={handleBorrow} loading={borrowLoading}>
+                <Button
+                  onClick={handleBorrow}
+                  loading={borrowLoading}
+                  disabled={!user}
+                >
                   Borrow Book
                 </Button>
               ) : (
                 <Button
                   onClick={handleReserve}
                   loading={borrowLoading}
+                  disabled={!user}
                   variant="warning"
                 >
                   Reserve Book
@@ -198,7 +214,13 @@ const BookDetails = () => {
       {/* REVIEW FORM */}
       {user && (
         <Card>
-          <h2 className="font-semibold text-lg mb-3">Write a Review</h2>
+          <h2 className="font-semibold text-lg mb-3">
+            Write a Review
+          </h2>
+
+          <p className="text-sm text-gray-500 mb-2">
+            Select rating:
+          </p>
 
           <div className="flex gap-2 text-2xl mb-3">
             {[1, 2, 3, 4, 5].map((s) => (
@@ -206,7 +228,9 @@ const BookDetails = () => {
                 key={s}
                 onClick={() => setRating(s)}
                 className={
-                  s <= rating ? "text-yellow-400" : "text-gray-300"
+                  s <= rating
+                    ? "text-yellow-400"
+                    : "text-gray-300"
                 }
               >
                 ★
@@ -239,7 +263,9 @@ const BookDetails = () => {
         ) : (
           reviews.map((r) => (
             <div key={r._id} className="border-b py-4">
-              <p className="font-medium">{r.user?.name || "User"}</p>
+              <p className="font-medium">
+                {r.user?.name || "User"}
+              </p>
               <p className="text-yellow-500">
                 {"★".repeat(r.rating)}
               </p>
