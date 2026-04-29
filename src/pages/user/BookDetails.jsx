@@ -156,7 +156,7 @@ const BookDetails = () => {
   if (!book)
     return <EmptyState title="Book not found" subtitle="Try another book" />;
 
-  const status = book?.status?.toLowerCase();
+  const status = (book?.status || "").toLowerCase();
 
   const showBorrow = status === "available";
   const showReturn = !!borrowRecord;
@@ -206,30 +206,51 @@ const BookDetails = () => {
 
             <div className="flex gap-3 flex-wrap pt-2">
 
-              {showBorrow && (
-                <Button onClick={handleBorrow} loading={actionLoading}>
-                  Borrow
-                </Button>
-              )}
+  {/* BORROW */}
+  {showBorrow && (
+    <Button
+      onClick={handleBorrow}
+      loading={actionLoading}
+      disabled={!user || actionLoading}
+      className={`${
+        !user
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-green-600 hover:bg-green-700"
+      } text-white`}
+    >
+      {!user && (
+  <p className="text-sm text-red-500">
+    Please login to borrow or reserve books
+  </p>
+)}
+    </Button>
+  )}
 
-              {showReserve && (
-                <Button onClick={handleReserve} loading={actionLoading}>
-                  Reserve
-                </Button>
-              )}
+  {/* RESERVE */}
+  {showReserve && (
+    <Button
+      onClick={handleReserve}
+      loading={actionLoading}
+      disabled={!user || actionLoading}
+      className="bg-yellow-500 hover:bg-yellow-600 text-white"
+    >
+      {!user ? "Login Required" : "Reserve"}
+    </Button>
+  )}
 
-              {showReturn && (
-                <Button
-                  onClick={handleReturn}
-                  loading={actionLoading}
-                  className="bg-red-500 hover:bg-red-600 text-white"
-                >
-                  Return Book
-                </Button>
-              )}
+  {/* RETURN */}
+  {showReturn && (
+    <Button
+      onClick={handleReturn}
+      loading={actionLoading}
+      disabled={actionLoading}
+      className="bg-red-500 hover:bg-red-600 text-white"
+    >
+      Return Book
+    </Button>
+  )}
 
-            </div>
-
+</div>
           </div>
         </div>
       </Card>

@@ -26,48 +26,46 @@ const AddBook = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async () => {
-  const { title, author, year, isbn, description } = form;
+    const { title, author, year, isbn } = form;
 
-  if (!title || !author || !year || !isbn || !description) {
-    return toast.error("All fields are required");
-  }
+    if (!title || !author || !year || !isbn) {
+      return toast.error("All required fields must be filled");
+    }
 
-  try {
-    setLoading(true);
+    if (year < 1000 || year > new Date().getFullYear()) {
+      return toast.error("Invalid year");
+    }
 
-    const formData = new FormData();
+    try {
+      setLoading(true);
 
-    formData.append("title", form.title);
-    formData.append("author", form.author);
-    formData.append("genre", form.genre);
-    formData.append("description", form.description);
-    formData.append("year", Number(form.year)); 
-    formData.append("isbn", form.isbn);
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
 
-    if (image) formData.append("image", image);
+      if (image) formData.append("image", image);
 
-    await instance.post("/books", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+      await instance.post("/books", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    toast.success("Book added successfully");
-    navigate("/admin/dashboard");
+      toast.success("Book added successfully");
+      navigate("/admin/dashboard");
 
-  } catch (err) {
-    console.error("ADD BOOK ERROR:", err);
-    toast.error(err?.response?.data?.message || "Server error");
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      console.error("ADD BOOK ERROR:", err);
+      toast.error(err?.response?.data?.message || "Failed to add book");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-2xl font-bold mb-6">Add Book</h1>
@@ -75,39 +73,28 @@ const AddBook = () => {
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
 
         <div className="grid md:grid-cols-2 gap-4">
-
-          <input name="title" placeholder="Title" onChange={handleChange}  className="border p-2 rounded w-full" />
-          <input name="author" placeholder="Author" onChange={handleChange}  className="border p-2 rounded w-full" />
-          <input name="genre" placeholder="Genre" onChange={handleChange}  className="border p-2 rounded w-full" />
-          <input type="number" name="year" placeholder="Year" onChange={handleChange}  className="border p-2 rounded w-full"/>
-
+          <input name="title" placeholder="Title" onChange={handleChange} className="border p-2 rounded w-full" />
+          <input name="author" placeholder="Author" onChange={handleChange} className="border p-2 rounded w-full" />
+          <input name="genre" placeholder="Genre" onChange={handleChange} className="border p-2 rounded w-full" />
+          <input type="number" name="year" placeholder="Year" onChange={handleChange} className="border p-2 rounded w-full" />
         </div>
 
-        <input
-          name="isbn"
-          placeholder="ISBN Number"
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
+        <input name="isbn" placeholder="ISBN Number" onChange={handleChange} className="border p-2 rounded w-full" />
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
+        <textarea name="description" placeholder="Description" onChange={handleChange} className="border p-2 rounded w-full" />
 
         <input type="file" onChange={handleImageChange} />
 
-        {preview && <img src={preview} className="w-32" />}
+        {preview && <img src={preview} className="w-32 rounded" />}
 
         <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded"
         >
-        {loading ? "Adding..." : "Add Book"}
-      </button>
+          {loading ? "Adding..." : "Add Book"}
+        </button>
+
       </div>
     </div>
   );
