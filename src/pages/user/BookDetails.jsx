@@ -16,7 +16,6 @@ const BookDetails = () => {
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState(0);
-
   const [borrowRecord, setBorrowRecord] = useState(null);
 
   const [rating, setRating] = useState(0);
@@ -28,9 +27,9 @@ const BookDetails = () => {
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [id, user]);
 
-  // ---------------- FETCH ----------------
+  // ================= FETCH =================
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -43,42 +42,43 @@ const BookDetails = () => {
 
       setBook(bookRes?.data?.data);
       setReviews(reviewRes?.data?.data || []);
+      setAvgRating(avgRes?.data?.data?.avgRating || 0);
 
-      const avg = avgRes?.data?.data || {};
-      setAvgRating(avg.avgRating || 0);
-
-      // Fetch ONLY this book's borrow record
       if (user) {
         try {
-          const borrowRes = await instance.get(`/borrow/my/${id}`);
-          setBorrowRecord(borrowRes?.data?.data || null);
+          const borrowRes = await instance.get(`/borrow/me`);
+
+          const record = borrowRes.data.data.find(
+            (b) => b.book?._id === id && b.status === "borrowed"
+          );
+
+          setBorrowRecord(record || null);
         } catch {
           setBorrowRecord(null);
         }
+      } else {
+        setBorrowRecord(null);
       }
 
     } catch (err) {
-      console.error(err);
+      console.error("FETCH ERROR:", err);
       toast.error("Failed to load book");
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------------- ACTIONS ----------------
+  // ================= ACTIONS =================
 
   const handleBorrow = async () => {
     if (!user) return toast.error("Login required");
 
     try {
       setActionLoading(true);
-      const res = await instance.post(`/borrow/${id}`);
-
+      await instance.post(`/borrow/${id}`);
       toast.success("Book borrowed");
 
-      // Optimistic update
-      setBook((prev) => ({ ...prev, status: "Borrowed" }));
-      setBorrowRecord(res?.data?.data);
+      await fetchData(); 
 
     } catch (err) {
       toast.error(err?.response?.data?.message || "Borrow failed");
@@ -94,6 +94,7 @@ const BookDetails = () => {
       setActionLoading(true);
       await instance.post(`/reservation/${id}`);
       toast.success("Book reserved");
+
     } catch (err) {
       toast.error(err?.response?.data?.message || "Reserve failed");
     } finally {
@@ -105,13 +106,10 @@ const BookDetails = () => {
     try {
       setActionLoading(true);
 
-      await instance.post(`/borrow/return/${borrowRecord._id}`);
-
+      await instance.put(`/borrow/${borrowRecord._id}/return`);
       toast.success("Book returned");
 
-      // Optimistic update
-      setBook((prev) => ({ ...prev, status: "Available" }));
-      setBorrowRecord(null);
+      await fetchData(); 
 
     } catch (err) {
       toast.error(err?.response?.data?.message || "Return failed");
@@ -122,23 +120,20 @@ const BookDetails = () => {
 
   const handleReview = async () => {
     if (!user) return toast.error("Login required");
+    if (!borrowRecord) return toast.error("Borrow before reviewing");
     if (!rating) return toast.error("Select rating");
     if (!comment.trim()) return toast.error("Write comment");
 
     try {
       setReviewLoading(true);
 
-      await instance.post(`/reviews/${id}`, {
-        rating,
-        comment,
-      });
+      await instance.post(`/reviews/${id}`, { rating, comment });
 
-      toast.success("Review submitted (Pending approval)");
+      toast.success("Review submitted");
 
       setRating(0);
       setComment("");
 
-      // Refresh only reviews
       const reviewRes = await instance.get(`/reviews/${id}`);
       setReviews(reviewRes?.data?.data || []);
 
@@ -149,7 +144,7 @@ const BookDetails = () => {
     }
   };
 
-  // ---------------- STATES ----------------
+  // ================= STATES =================
 
   if (loading) return <Loader />;
 
@@ -159,13 +154,20 @@ const BookDetails = () => {
   const status = (book?.status || "").toLowerCase();
 
   const showBorrow = status === "available";
-  const showReturn = !!borrowRecord;
+  const showReturn = borrowRecord !== null;
   const showReserve = status === "borrowed" && !borrowRecord;
 
-  // ---------------- UI ----------------
+  // ================= UI =================
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
+
+      {/* LOGIN WARNING */}
+      {!user && (
+        <p className="text-red-500 text-sm">
+          Please login to borrow or reserve books
+        </p>
+      )}
 
       {/* BOOK */}
       <Card>
@@ -204,63 +206,46 @@ const BookDetails = () => {
               </p>
             </div>
 
+            {/* ACTION BUTTONS */}
             <div className="flex gap-3 flex-wrap pt-2">
 
-  {/* BORROW */}
-  {showBorrow && (
-  <>
-    {!user && (
-      <p className="text-sm text-red-500">
-        Please login to borrow or reserve books
-      </p>
-    )}
+              {showBorrow && (
+                <Button
+                  onClick={handleBorrow}
+                  disabled={!user || actionLoading}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {actionLoading ? "Processing..." : "Borrow"}
+                </Button>
+              )}
 
-    <Button
-      onClick={handleBorrow}
-      loading={actionLoading}
-      disabled={!user || actionLoading}
-      className={`${
-        !user
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-green-600 hover:bg-green-700"
-      } text-white`}
-    >
-      {actionLoading ? "Processing..." : "Borrow"}
-    </Button>
-  </>
-)}
+              {showReserve && (
+                <Button
+                  onClick={handleReserve}
+                  disabled={!user || actionLoading}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                >
+                  Reserve
+                </Button>
+              )}
 
-  {/* RESERVE */}
-  {showReserve && (
-    <Button
-      onClick={handleReserve}
-      loading={actionLoading}
-      disabled={!user || actionLoading}
-      className="bg-yellow-500 hover:bg-yellow-600 text-white"
-    >
-      {!user ? "Login Required" : "Reserve"}
-    </Button>
-  )}
+              {showReturn && (
+                <Button
+                  onClick={handleReturn}
+                  disabled={actionLoading}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Return Book
+                </Button>
+              )}
 
-  {/* RETURN */}
-  {showReturn && (
-    <Button
-      onClick={handleReturn}
-      loading={actionLoading}
-      disabled={actionLoading}
-      className="bg-red-500 hover:bg-red-600 text-white"
-    >
-      Return Book
-    </Button>
-  )}
-
-</div>
+            </div>
           </div>
         </div>
       </Card>
 
       {/* REVIEW FORM */}
-      {user && (
+      {user && borrowRecord && (
         <Card>
           <h2 className="font-semibold mb-3">Write Review</h2>
 
