@@ -40,15 +40,19 @@ const BookDetails = () => {
         instance.get(`/reviews/${id}/average`),
       ]);
 
-      setBook(bookRes?.data?.data);
+      const bookData = bookRes?.data?.data;
+      if (!bookData) throw new Error("Book not found");
+
+      setBook(bookData);
       setReviews(reviewRes?.data?.data || []);
       setAvgRating(avgRes?.data?.data?.avgRating || 0);
 
       if (user) {
         try {
           const borrowRes = await instance.get(`/borrow/me`);
+          const borrowData = borrowRes?.data?.data || [];
 
-          const record = borrowRes.data.data.find(
+          const record = borrowData.find(
             (b) => b.book?._id === id && b.status === "borrowed"
           );
 
@@ -61,7 +65,7 @@ const BookDetails = () => {
       }
 
     } catch (err) {
-      console.error("FETCH ERROR:", err);
+      console.error(err);
       toast.error("Failed to load book");
     } finally {
       setLoading(false);
@@ -77,9 +81,7 @@ const BookDetails = () => {
       setActionLoading(true);
       await instance.post(`/borrow/${id}`);
       toast.success("Book borrowed");
-
-      await fetchData(); 
-
+      await fetchData();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Borrow failed");
     } finally {
@@ -94,7 +96,6 @@ const BookDetails = () => {
       setActionLoading(true);
       await instance.post(`/reservation/${id}`);
       toast.success("Book reserved");
-
     } catch (err) {
       toast.error(err?.response?.data?.message || "Reserve failed");
     } finally {
@@ -105,12 +106,9 @@ const BookDetails = () => {
   const handleReturn = async () => {
     try {
       setActionLoading(true);
-
       await instance.put(`/borrow/${borrowRecord._id}/return`);
       toast.success("Book returned");
-
-      await fetchData(); 
-
+      await fetchData();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Return failed");
     } finally {
@@ -153,8 +151,8 @@ const BookDetails = () => {
 
   const status = (book?.status || "").toLowerCase();
 
-  const showBorrow = status === "available";
-  const showReturn = borrowRecord !== null;
+  const showBorrow = status === "available" && !borrowRecord;
+  const showReturn = borrowRecord?.status === "borrowed";
   const showReserve = status === "borrowed" && !borrowRecord;
 
   // ================= UI =================
@@ -162,14 +160,12 @@ const BookDetails = () => {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
 
-      {/* LOGIN WARNING */}
       {!user && (
         <p className="text-red-500 text-sm">
           Please login to borrow or reserve books
         </p>
       )}
 
-      {/* BOOK */}
       <Card>
         <div className="grid md:grid-cols-3 gap-8">
 
@@ -183,7 +179,6 @@ const BookDetails = () => {
           />
 
           <div className="md:col-span-2 space-y-4">
-
             <h1 className="text-3xl font-bold">{book.title}</h1>
             <p className="text-gray-500">{book.author}</p>
 
@@ -199,42 +194,24 @@ const BookDetails = () => {
               {book.status}
             </span>
 
-            <div>
-              <h3 className="font-semibold">Description</h3>
-              <p className="text-gray-700 text-sm">
-                {book.description || "No description available"}
-              </p>
-            </div>
+            <p className="text-sm">{book.description}</p>
 
-            {/* ACTION BUTTONS */}
-            <div className="flex gap-3 flex-wrap pt-2">
+            <div className="flex gap-3 flex-wrap">
 
               {showBorrow && (
-                <Button
-                  onClick={handleBorrow}
-                  disabled={!user || actionLoading}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {actionLoading ? "Processing..." : "Borrow"}
+                <Button onClick={handleBorrow} disabled={!user || actionLoading}>
+                  {!user ? "Login Required" : actionLoading ? "Processing..." : "Borrow"}
                 </Button>
               )}
 
               {showReserve && (
-                <Button
-                  onClick={handleReserve}
-                  disabled={!user || actionLoading}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                >
+                <Button onClick={handleReserve}>
                   Reserve
                 </Button>
               )}
 
               {showReturn && (
-                <Button
-                  onClick={handleReturn}
-                  disabled={actionLoading}
-                  className="bg-red-500 hover:bg-red-600 text-white"
-                >
+                <Button onClick={handleReturn}>
                   Return Book
                 </Button>
               )}
@@ -244,9 +221,15 @@ const BookDetails = () => {
         </div>
       </Card>
 
-      {/* REVIEW FORM */}
-      {user && borrowRecord && (
+      {/* REVIEW */}
+      {user && (
         <Card>
+          {!borrowRecord && (
+            <p className="text-red-500 mb-2">
+              You must borrow this book before reviewing
+            </p>
+          )}
+
           <h2 className="font-semibold mb-3">Write Review</h2>
 
           <div className="flex gap-2 text-2xl mb-3">
@@ -262,13 +245,12 @@ const BookDetails = () => {
           </div>
 
           <textarea
-            placeholder="Write your review..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="w-full border p-3 rounded mb-3"
           />
 
-          <Button onClick={handleReview} loading={reviewLoading}>
+          <Button onClick={handleReview} disabled={!borrowRecord}>
             Submit Review
           </Button>
         </Card>
@@ -283,12 +265,9 @@ const BookDetails = () => {
         ) : (
           reviews.map((r) => (
             <div key={r._id} className="border-b py-3">
-              <p className="font-medium">{r.user?.name || "User"}</p>
-              <p className="text-yellow-500">
-                {"★".repeat(r.rating)}
-                {"☆".repeat(5 - r.rating)}
-              </p>
-              <p className="text-gray-600">{r.comment}</p>
+              <p>{r.user?.name || "User"}</p>
+              <p>{"★".repeat(r.rating)}</p>
+              <p>{r.comment}</p>
             </div>
           ))
         )}

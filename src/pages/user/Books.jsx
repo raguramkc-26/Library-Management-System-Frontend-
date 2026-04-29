@@ -39,7 +39,7 @@ const Books = () => {
         `/books?page=${page}&keyword=${debouncedSearch}`
       );
 
-      setBooks(res?.data?.books || []);
+      setBooks(res?.data?.data || []);
       setTotalPages(res?.data?.totalPages || 1);
 
     } catch (err) {

@@ -41,7 +41,7 @@ const Sidebar = () => {
 
   const links = user?.role === "admin" ? adminLinks : userLinks;
 
-  // 🔥 Send notification
+  // Send notification
   const handleNotify = async () => {
     if (!message.trim()) return toast.error("Message required");
 
@@ -127,7 +127,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* 🔥 MODAL (Notify UI) */}
+      {/* MODAL (Notify UI) */}
       {showNotify && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
