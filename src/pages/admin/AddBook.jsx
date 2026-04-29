@@ -12,6 +12,7 @@ const AddBook = () => {
     genre: "",
     description: "",
     year: "",
+    isbn: "",
   });
 
   const [image, setImage] = useState(null);
@@ -32,17 +33,32 @@ const AddBook = () => {
     setPreview(URL.createObjectURL(file));
   };
 
-  // SUBMIT
-  const handleSubmit = async () => {
-    const { title, author, year } = form;
+  // VALIDATION
+  const validateForm = () => {
+    const { title, author, year, isbn } = form;
 
-    if (!title || !author || !year) {
-      return toast.error("Title, Author & Year are required");
+    if (!title.trim() || !author.trim() || !year || !isbn.trim()) {
+      toast.error("Title, Author, Year & ISBN are required");
+      return false;
     }
 
     if (year < 1000 || year > new Date().getFullYear()) {
-      return toast.error("Invalid year");
+      toast.error("Enter a valid year");
+      return false;
     }
+
+    // ISBN validation (10 or 13 digits)
+    if (!/^\d{10}(\d{3})?$/.test(isbn)) {
+      toast.error("ISBN must be 10 or 13 digits");
+      return false;
+    }
+
+    return true;
+  };
+
+  // SUBMIT
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
     try {
       setLoading(true);
@@ -56,7 +72,9 @@ const AddBook = () => {
       if (image) formData.append("image", image);
 
       await instance.post("/books", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       toast.success("Book added successfully");
@@ -68,6 +86,7 @@ const AddBook = () => {
         genre: "",
         description: "",
         year: "",
+        isbn: "",
       });
 
       setImage(null);
@@ -76,26 +95,30 @@ const AddBook = () => {
       navigate("/admin/dashboard");
 
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to add book");
+      console.error("ADD BOOK ERROR:", err);
+      toast.error(
+        err.response?.data?.message || "Server error while adding book"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">Add Book</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Add New Book</h1>
 
-      <div className="bg-white p-6 rounded-xl shadow space-y-4">
+      <div className="bg-white p-6 rounded-xl shadow space-y-5">
 
+        {/* INPUT GRID */}
         <div className="grid md:grid-cols-2 gap-4">
 
           <input
             name="title"
             value={form.title}
-            placeholder="Title"
+            placeholder="Book Title"
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border p-3 rounded w-full"
           />
 
           <input
@@ -103,7 +126,7 @@ const AddBook = () => {
             value={form.author}
             placeholder="Author"
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border p-3 rounded w-full"
           />
 
           <input
@@ -111,27 +134,36 @@ const AddBook = () => {
             value={form.genre}
             placeholder="Genre"
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border p-3 rounded w-full"
           />
 
-          {/* 🔥 YEAR FIELD */}
           <input
             type="number"
             name="year"
             value={form.year}
-            placeholder="Year"
+            placeholder="Published Year"
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="border p-3 rounded w-full"
+          />
+
+          {/* ISBN FIELD */}
+          <input
+            name="isbn"
+            value={form.isbn}
+            placeholder="ISBN (10 or 13 digits)"
+            onChange={handleChange}
+            className="border p-3 rounded w-full md:col-span-2"
           />
 
         </div>
 
+        {/* DESCRIPTION */}
         <textarea
           name="description"
           value={form.description}
-          placeholder="Description"
+          placeholder="Book Description"
           onChange={handleChange}
-          className="border p-2 rounded w-full h-28"
+          className="border p-3 rounded w-full h-28"
         />
 
         {/* IMAGE */}
@@ -159,6 +191,7 @@ const AddBook = () => {
           )}
         </div>
 
+        {/* BUTTON */}
         <div className="flex justify-end">
           <button
             onClick={handleSubmit}
