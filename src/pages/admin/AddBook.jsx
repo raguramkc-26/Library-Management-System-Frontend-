@@ -11,37 +11,44 @@ const AddBook = () => {
     author: "",
     genre: "",
     description: "",
+    year: "",
   });
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // handle text inputs
+  // INPUT CHANGE
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // handle image
+  // IMAGE CHANGE
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setImage(file);
-    setPreview(URL.createObjectURL(file)); // faster than FileReader
+    setPreview(URL.createObjectURL(file));
   };
 
-  // submit
+  // SUBMIT
   const handleSubmit = async () => {
-    if (!form.title || !form.author) {
-      toast.error("Title & Author are required");
-      return;
+    const { title, author, year } = form;
+
+    if (!title || !author || !year) {
+      return toast.error("Title, Author & Year are required");
+    }
+
+    if (year < 1000 || year > new Date().getFullYear()) {
+      return toast.error("Invalid year");
     }
 
     try {
       setLoading(true);
 
       const formData = new FormData();
+
       Object.keys(form).forEach((key) => {
         formData.append(key, form[key]);
       });
@@ -54,13 +61,15 @@ const AddBook = () => {
 
       toast.success("Book added successfully");
 
-      // reset form
+      // RESET
       setForm({
         title: "",
         author: "",
         genre: "",
         description: "",
+        year: "",
       });
+
       setImage(null);
       setPreview(null);
 
@@ -105,6 +114,16 @@ const AddBook = () => {
             className="border p-2 rounded w-full"
           />
 
+          {/* 🔥 YEAR FIELD */}
+          <input
+            type="number"
+            name="year"
+            value={form.year}
+            placeholder="Year"
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+
         </div>
 
         <textarea
@@ -117,28 +136,28 @@ const AddBook = () => {
 
         {/* IMAGE */}
         <div className="space-y-3">
-  <label className="font-medium">Book Image</label>
+          <label className="font-medium">Book Image</label>
 
-  <input
-    type="file"
-    accept="image/*"
-    onChange={handleImageChange}
-    className="block w-full text-sm text-gray-500
-      file:mr-4 file:py-2 file:px-4
-      file:rounded-lg file:border-0
-      file:text-sm file:font-semibold
-      file:bg-indigo-50 file:text-indigo-700
-      hover:file:bg-indigo-100"
-  />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-lg file:border-0
+              file:text-sm file:font-semibold
+              file:bg-indigo-50 file:text-indigo-700
+              hover:file:bg-indigo-100"
+          />
 
-  {preview && (
-    <img
-      src={preview}
-      alt="Preview"
-      className="w-40 h-56 object-cover rounded-lg shadow"
-    />
-  )}
-</div>
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-40 h-56 object-cover rounded-lg shadow"
+            />
+          )}
+        </div>
 
         <div className="flex justify-end">
           <button
