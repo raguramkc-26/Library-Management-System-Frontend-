@@ -5,7 +5,7 @@ const Modal = ({ children, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md"
+        className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md animate-fadeIn"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

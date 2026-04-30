@@ -78,7 +78,9 @@ const BookDetails = () => {
 
   const handleBorrow = async () => {
     if (!user) return toast.error("Login required");
-
+    if (book.status !== "available") {
+      return toast.error("Book not available");
+    }
     try {
       setActionLoading(true);
       await instance.post(`/borrow/${id}`);

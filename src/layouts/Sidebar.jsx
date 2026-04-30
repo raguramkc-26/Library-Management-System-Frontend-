@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import instance from "../instances/instance";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import Modal from "../components/ui/Modal";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
@@ -41,13 +42,11 @@ const Sidebar = () => {
 
   const links = user?.role === "admin" ? adminLinks : userLinks;
 
-  // Send notification
   const handleNotify = async () => {
     if (!message.trim()) return toast.error("Message required");
 
     try {
       setLoading(true);
-
       await instance.post("/admin/notify-all", { message });
 
       toast.success("Notification sent");
@@ -67,6 +66,7 @@ const Sidebar = () => {
 
   return (
     <>
+      {/* SIDEBAR */}
       <div className="w-64 bg-white border-r flex flex-col">
 
         {/* LOGO */}
@@ -77,9 +77,8 @@ const Sidebar = () => {
           </p>
         </div>
 
-        {/* NAV */}
+        {/* NAVIGATION */}
         <div className="flex-1 p-3 space-y-1">
-
           {links.map((link) => {
             const Icon = link.icon;
 
@@ -127,44 +126,48 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* MODAL (Notify UI) */}
+      {/* MODAL */}
       {showNotify && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <Modal onClose={() => setShowNotify(false)}>
+          <div className="space-y-4">
 
-          <div className="bg-white rounded-xl p-6 w-96 shadow-xl space-y-4">
-
-            <h2 className="text-lg font-semibold">
-              Send Notification
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Send Notification
+              </h2>
+              <p className="text-sm text-gray-500">
+                This will notify all users instantly
+              </p>
+            </div>
 
             <textarea
-              placeholder="Enter message..."
+              placeholder="Type your message here..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full border p-3 rounded"
+              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+              rows={4}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3 pt-2">
 
               <button
                 onClick={() => setShowNotify(false)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleNotify}
-                disabled={loading}
-                className="px-4 py-2 bg-indigo-600 text-white rounded"
+                disabled={loading || !message.trim()}
+                className="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                {loading ? "Sending..." : "Send"}
+                {loading ? "Sending..." : "Send Notification"}
               </button>
 
             </div>
-
           </div>
-        </div>
+        </Modal>
       )}
     </>
   );
