@@ -78,7 +78,7 @@ const BookDetails = () => {
 
   const handleBorrow = async () => {
     if (!user) return toast.error("Login required");
-    if (book.status !== "available") {
+    if (book.status !== "Available") {
       return toast.error("Book not available");
     }
     try {
@@ -166,7 +166,6 @@ const BookDetails = () => {
 
   const isAvailable = book?.status === "Available";
   const isBorrowed = book?.status === "Borrowed";
-
   const showBorrow = isAvailable && !borrowRecord;
   const showReturn = borrowRecord?.status === "borrowed";
   const showReserve = isBorrowed && !borrowRecord;
