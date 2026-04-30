@@ -1,4 +1,5 @@
 import instance from "../instances/instance";
+import { getBookById } from "./bookService";
 //Public
 export const getAllBooks = async (params) => {
     try {
@@ -42,7 +43,7 @@ export const deleteBook = async (id) => {
 
 export const getSingleBook = async (id) => {
     try {
-        const res = await instance.get(`/books/${id}`);
+        const res = await getBookById(id);
         return res.data;
     } catch (err) {
         console.error("getSingleBook error:", err);

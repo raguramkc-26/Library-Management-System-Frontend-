@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getBookById } from "../../services/bookService";
 import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 
@@ -20,7 +21,7 @@ const EditBook = () => {
   }, []);
 
   const fetchBook = async () => {
-    const res = await instance.get(`/books/${id}`);
+    const res = await getBookById(id);
     setForm(res.data);
   };
 
