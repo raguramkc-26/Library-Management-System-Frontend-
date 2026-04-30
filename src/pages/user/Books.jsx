@@ -28,11 +28,13 @@ const Books = () => {
 
   // Fetch books
   useEffect(() => {
+    console.log("Books component mounted");
     fetchBooks();
   }, [page, debouncedSearch]);
 
   const fetchBooks = async () => {
     try {
+      console.log("Fetching books...");
       setLoading(true);
 
       const res = await instance.get(
