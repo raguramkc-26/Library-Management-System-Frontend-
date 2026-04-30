@@ -1,57 +1,37 @@
 import { useEffect, useState } from "react";
-import { getBooks } from "../../services/bookService";
+import { getNotifications } from "../../services/notificationService";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
-import { getNotifications } from "../../services/notificationService";
 import EmptyState from "../../components/ui/EmptyState";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const res = await getBooks();
-  setBooks(res.data.data || []);
+
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await getNotifications();
+        setNotifications(res?.data || []);
+      } catch {
+        setNotifications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchNotifications();
   }, []);
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get("/notifications");
-      setNotifications(res?.data?.data || []);
-    } catch (err) {
-      console.error("Notification fetch failed", err);
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) return <Loader />;
 
-  if (notifications.length === 0) {
-    return (
-      <EmptyState
-        title="No notifications"
-        subtitle="You will see updates here"
-      />
-    );
-  }
+  if (!notifications.length)
+    return <EmptyState title="No notifications" />;
 
   return (
-    <div className="p-6 space-y-3">
+    <div>
       {notifications.map((n) => (
-        <Card
-          key={n._id}
-          className="p-4 hover:shadow-md transition"
-        >
-          <p className="font-medium text-gray-800">
-            📢 {n.message}
-          </p>
-
-          <span className="text-xs text-gray-400">
-            {new Date(n.createdAt).toLocaleString()}
-          </span>
-        </Card>
+        <Card key={n._id}>{n.message}</Card>
       ))}
     </div>
   );
