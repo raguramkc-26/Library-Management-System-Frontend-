@@ -34,18 +34,18 @@ const Books = () => {
 
   const fetchBooks = async () => {
     try {
-      console.log("Fetching books...");
+      console.log("API CALL START");
       setLoading(true);
 
       const res = await instance.get(
         `/books?page=${page}&keyword=${debouncedSearch}`
       );
-
+      console.log("API RESPONSE:", res);
       setBooks(res?.data?.data || []);
       setTotalPages(res?.data?.totalPages || 1);
 
     } catch (err) {
-      console.error(err);
+      console.log("API ERROR:",err); 
       toast.error("Failed to load books"); 
     } finally {
       setLoading(false);
