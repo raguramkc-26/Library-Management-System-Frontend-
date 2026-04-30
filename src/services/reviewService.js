@@ -14,3 +14,6 @@ export const approveReview = (reviewId) =>
 
 export const rejectReview = (reviewId) =>
   api.patch(`/reviews/${reviewId}/reject`);
+
+export const getPendingReviews = () => 
+  api.get("/reviews/pending");
