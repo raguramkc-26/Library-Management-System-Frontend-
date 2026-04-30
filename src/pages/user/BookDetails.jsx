@@ -37,7 +37,7 @@ const BookDetails = () => {
       const [bookRes, reviewRes, avgRes] = await Promise.all([
         instance.get(`/books/${id}`),
         instance.get(`/reviews/${id}`),
-        instance.get(`/reviews/${id}/average`),
+        instance.get(`/reviews/${id}/average`)
       ]);
 
       const bookData = bookRes?.data?.data;
@@ -47,6 +47,7 @@ const BookDetails = () => {
       setReviews(reviewRes?.data?.data || []);
       setAvgRating(avgRes?.data?.data?.avgRating || 0);
 
+      // fetch borrow info
       if (user) {
         try {
           const borrowRes = await instance.get(`/borrow/me`);
@@ -57,7 +58,8 @@ const BookDetails = () => {
           );
 
           setBorrowRecord(record || null);
-        } catch {
+        } catch (err) {
+          console.error("BORROW FETCH ERROR:", err);
           setBorrowRecord(null);
         }
       } else {
@@ -65,7 +67,7 @@ const BookDetails = () => {
       }
 
     } catch (err) {
-      console.error(err);
+      console.error("FETCH ERROR:", err);
       toast.error("Failed to load book");
     } finally {
       setLoading(false);
@@ -83,6 +85,7 @@ const BookDetails = () => {
       toast.success("Book borrowed");
       await fetchData();
     } catch (err) {
+      console.error("BORROW ERROR:", err);
       toast.error(err?.response?.data?.message || "Borrow failed");
     } finally {
       setActionLoading(false);
@@ -97,6 +100,7 @@ const BookDetails = () => {
       await instance.post(`/reservation/${id}`);
       toast.success("Book reserved");
     } catch (err) {
+      console.error("RESERVE ERROR:", err);
       toast.error(err?.response?.data?.message || "Reserve failed");
     } finally {
       setActionLoading(false);
@@ -104,12 +108,15 @@ const BookDetails = () => {
   };
 
   const handleReturn = async () => {
+    if (!borrowRecord?._id) return;
+
     try {
       setActionLoading(true);
       await instance.put(`/borrow/${borrowRecord._id}/return`);
       toast.success("Book returned");
       await fetchData();
     } catch (err) {
+      console.error("RETURN ERROR:", err);
       toast.error(err?.response?.data?.message || "Return failed");
     } finally {
       setActionLoading(false);
@@ -118,7 +125,6 @@ const BookDetails = () => {
 
   const handleReview = async () => {
     if (!user) return toast.error("Login required");
-    if (!borrowRecord) return toast.error("Borrow before reviewing");
     if (!rating) return toast.error("Select rating");
     if (!comment.trim()) return toast.error("Write comment");
 
@@ -132,10 +138,17 @@ const BookDetails = () => {
       setRating(0);
       setComment("");
 
-      const reviewRes = await instance.get(`/reviews/${id}`);
+      // refresh reviews + avg rating
+      const [reviewRes, avgRes] = await Promise.all([
+        instance.get(`/reviews/${id}`),
+        instance.get(`/reviews/${id}/average`)
+      ]);
+
       setReviews(reviewRes?.data?.data || []);
+      setAvgRating(avgRes?.data?.data?.avgRating || 0);
 
     } catch (err) {
+      console.error("REVIEW ERROR:", err);
       toast.error(err?.response?.data?.message || "Review failed");
     } finally {
       setReviewLoading(false);
@@ -144,16 +157,17 @@ const BookDetails = () => {
 
   // ================= STATES =================
 
-  if  (loading) return <Loader />;
+  if (loading) return <Loader />;
 
   if (!book)
     return <EmptyState title="Book not found" subtitle="Try another book" />;
 
-  const status = (book?.status || "").toLowerCase();
+  const isAvailable = book?.status === "Available";
+  const isBorrowed = book?.status === "Borrowed";
 
-  const showBorrow = status === "available" && !borrowRecord;
+  const showBorrow = isAvailable && !borrowRecord;
   const showReturn = borrowRecord?.status === "borrowed";
-  const showReserve = status === "borrowed" && !borrowRecord;
+  const showReserve = isBorrowed && !borrowRecord;
 
   // ================= UI =================
 
@@ -162,7 +176,7 @@ const BookDetails = () => {
 
       {!user && (
         <p className="text-red-500 text-sm">
-          Please login to borrow or reserve books
+          Please login to interact with books
         </p>
       )}
 
@@ -187,7 +201,7 @@ const BookDetails = () => {
             </p>
 
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              status === "available"
+              isAvailable
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
             }`}>
@@ -199,19 +213,28 @@ const BookDetails = () => {
             <div className="flex gap-3 flex-wrap">
 
               {showBorrow && (
-                <Button onClick={handleBorrow} disabled={!user || actionLoading}>
-                  {!user ? "Login Required" : actionLoading ? "Processing..." : "Borrow"}
+                <Button
+                  onClick={handleBorrow}
+                  disabled={!user || actionLoading}
+                >
+                  {actionLoading ? "Processing..." : "Borrow"}
                 </Button>
               )}
 
               {showReserve && (
-                <Button onClick={handleReserve}>
+                <Button
+                  onClick={handleReserve}
+                  disabled={!user || actionLoading}
+                >
                   Reserve
                 </Button>
               )}
 
               {showReturn && (
-                <Button onClick={handleReturn}>
+                <Button
+                  onClick={handleReturn}
+                  disabled={actionLoading}
+                >
                   Return Book
                 </Button>
               )}
@@ -221,15 +244,9 @@ const BookDetails = () => {
         </div>
       </Card>
 
-      {/* REVIEW */}
+      {/* REVIEW SECTION */}
       {user && (
         <Card>
-          {!borrowRecord && (
-            <p className="text-red-500 mb-2">
-              You must borrow this book before reviewing
-            </p>
-          )}
-
           <h2 className="font-semibold mb-3">Write Review</h2>
 
           <div className="flex gap-2 text-2xl mb-3">
@@ -250,8 +267,11 @@ const BookDetails = () => {
             className="w-full border p-3 rounded mb-3"
           />
 
-          <Button onClick={handleReview} disabled={!borrowRecord}>
-            Submit Review
+          <Button
+            onClick={handleReview}
+            disabled={reviewLoading}
+          >
+            {reviewLoading ? "Submitting..." : "Submit Review"}
           </Button>
         </Card>
       )}
@@ -261,7 +281,10 @@ const BookDetails = () => {
         <h2 className="font-semibold mb-4">Reviews</h2>
 
         {reviews.length === 0 ? (
-          <EmptyState title="No reviews yet" />
+          <EmptyState
+            title="No reviews yet"
+            subtitle="Be the first to review this book"
+          />
         ) : (
           reviews.map((r) => (
             <div key={r._id} className="border-b py-3">
