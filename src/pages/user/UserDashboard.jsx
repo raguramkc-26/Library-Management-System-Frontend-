@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getBooks } from "../../services/bookService"; 
+import { getMyBorrowings } from "../../services/bookService";
 import { toast } from "react-toastify";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
@@ -12,8 +12,7 @@ const UserDashboard = () => {
     returned: 0,
   });
   const [loading, setLoading] = useState(true);
-  const res = await getBooks();
-  setBooks(res.data.data || []);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -22,7 +21,7 @@ const UserDashboard = () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/borrow/me");
+      const res = await getMyBorrowings();
       const data = res?.data?.data || [];
 
       setBooks(data);
@@ -46,7 +45,7 @@ const UserDashboard = () => {
     }
   };
 
-  if  (loading) return <Loader />;
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen space-y-6">
@@ -76,7 +75,6 @@ const UserDashboard = () => {
               key={b._id}
               className="flex justify-between items-center border-b py-3 hover:bg-gray-50 rounded-lg px-2 transition"
             >
-
               <div className="flex gap-4 items-center">
                 <img
                   src={b.book?.image || "https://via.placeholder.com/50"}
@@ -100,7 +98,6 @@ const UserDashboard = () => {
               >
                 {b.status}
               </span>
-
             </div>
           ))
         )}
