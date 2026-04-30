@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
@@ -15,6 +15,7 @@ const Books = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const res = await getBooks();
 
   // Debounce search 
   useEffect(() => {

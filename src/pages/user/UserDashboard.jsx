@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
@@ -12,6 +12,7 @@ const UserDashboard = () => {
     returned: 0,
   });
   const [loading, setLoading] = useState(true);
+  const res = await getBooks();
 
   useEffect(() => {
     fetchData();

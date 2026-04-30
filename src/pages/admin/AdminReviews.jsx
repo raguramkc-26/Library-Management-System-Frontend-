@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
 
@@ -8,6 +8,7 @@ const AdminReviews = () => {
 
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
+  const res = await getBooks();
 
   useEffect(() => {
     if (!loading && user?.role === "admin") {

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
+import { getNotifications } from "../../services/notificationService";
 import EmptyState from "../../components/ui/EmptyState";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const res = await getBooks();
 
   useEffect(() => {
     fetchNotifications();

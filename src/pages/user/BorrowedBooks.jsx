@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
 import EmptyState from "../../components/ui/EmptyState";
@@ -7,6 +7,7 @@ import EmptyState from "../../components/ui/EmptyState";
 const BorrowedBooks = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const res = await getBooks();
 
   useEffect(() => {
     fetchBorrowed();

@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
-
+import { getBookById, borrowBook } from "../../services/bookService";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
@@ -24,6 +24,7 @@ const BookDetails = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
+  const res = await getBooks();
 
   useEffect(() => {
     fetchData();

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const res = await getBooks();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

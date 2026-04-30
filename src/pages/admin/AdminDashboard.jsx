@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
 import { toast } from "react-toastify";
@@ -11,6 +11,7 @@ const AdminDashboard = () => {
   const [topBooks, setTopBooks] = useState([]);
   const [monthly, setMonthly] = useState([]);
   const [loading, setLoading] = useState(true);
+  const res = await getBooks();
 
   useEffect(() => {
     fetchDashboard();

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 
 import Card from "../../components/ui/Card";
@@ -8,7 +8,7 @@ import Loader from "../../components/ui/Loader";
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const res = await getBooks();
   useEffect(() => {
     fetchProfile();
   }, []);

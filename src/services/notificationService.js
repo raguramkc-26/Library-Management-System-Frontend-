@@ -1,11 +1,5 @@
-import instance from "../instances/instance";
+import api from "./api";
 
-export const getMyNotifications = async () => {
-  const res = await instance.get("/notifications/me");
-  return res.data;
-};
-
-export const markAsRead = async (id) => {
-  const res = await instance.put(`/notifications/${id}/read`);
-  return res.data;
-};
+export const getNotifications = () => api.get("/notifications");
+export const sendNotification = (data) =>
+  api.post("/admin/notify-all", data);

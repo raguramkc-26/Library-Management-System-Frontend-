@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 
@@ -15,6 +15,7 @@ const AddBook = () => {
 
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const res = await getBooks();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

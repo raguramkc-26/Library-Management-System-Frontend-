@@ -14,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import instance from "../instances/instance";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { sendNotification } from "../services/notificationService";
 import Modal from "../components/ui/Modal";
 
 const Sidebar = () => {

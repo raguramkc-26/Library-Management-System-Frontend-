@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import instance from "../../instances/instance";
+import { getBooks } from "../../services/bookService"; 
 import { toast } from "react-toastify";
 
 const EditBook = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const res = await getBooks();
 
   const [form, setForm] = useState({
     title: "",
