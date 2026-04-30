@@ -40,8 +40,9 @@ const Books = () => {
       const res = await instance.get(
         `/books?page=${page}&keyword=${debouncedSearch}`
       );
-      console.log("API RESPONSE:", res);
-      setBooks(res?.data?.data || []);
+      console.log("FULL RESPONSE:", res);
+      console.log("DATA:", res.data);
+      setBooks(Array.isArray(res?.data?.data) ? res.data.data : []);
       setTotalPages(res?.data?.totalPages || 1);
 
     } catch (err) {
