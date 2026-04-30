@@ -23,24 +23,18 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem("token");
 
         if (!token) {
-          setLoading(false);
+          setUser(null);
           return;
         }
 
         const res = await getMe();
         setUser(res.user);
-        if (!res?.data?.user) {
-          throw new Error("Invalid user data");
-        }
-
-        setUser(res.data.user);
 
       } catch (err) {
-        console.error("Auth Error:", err);
+        console.log("Auth failed → clearing token");
 
         localStorage.removeItem("token");
         setUser(null);
-
       } finally {
         setLoading(false);
       }
@@ -49,24 +43,8 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setUser(null);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

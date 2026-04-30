@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { loginUser } from "../../services/authService"; 
+import { loginUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -10,14 +11,15 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = async (e) => { 
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const res = await loginUser(form);
 
-      localStorage.setItem("token", res.token);
+      login(res.user, res.token); 
 
       toast.success("Login successful");
       navigate("/dashboard");
