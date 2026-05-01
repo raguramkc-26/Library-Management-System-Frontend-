@@ -34,9 +34,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
 
       } catch (err) {
-        console.error("Auth Error:", err);
-
-          localStorage.removeItem("token");
+        console.error("Auth Error:", err.response?.data || err.message); 
           setUser(null);
         } finally {
         setLoading(false);
