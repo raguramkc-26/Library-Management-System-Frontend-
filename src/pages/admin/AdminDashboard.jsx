@@ -3,7 +3,6 @@ import { getAdminStats, getMonthlyStats } from "../../services/adminService";
 import Loader from "../../components/ui/Loader";
 import Card from "../../components/ui/Card";
 import AdminChart from "../../components/charts/AdminChart";
-import DashboardLayout from "../../layout/DashboardLayout";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({});
@@ -33,37 +32,31 @@ const AdminDashboard = () => {
 
   if (loading) return <Loader />;
 
-  return (
-    <DashboardLayout>
+ return (
+  <div className="space-y-6">
 
-      {/* HEADER */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-gray-500">
-          Monitor library performance and analytics
-        </p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      <p className="text-gray-500">
+        Monitor library performance
+      </p>
+    </div>
 
-      {/* KPI CARDS */}
-      <div className="grid md:grid-cols-4 gap-6">
+    <div className="grid md:grid-cols-4 gap-6">
+      <StatCard title="Books" value={stats.books} color="bg-indigo-500" />
+      <StatCard title="Users" value={stats.users} color="bg-blue-500" />
+      <StatCard title="Borrowed" value={stats.borrowed} color="bg-yellow-500" />
+      <StatCard title="Revenue" value={`₹${stats.revenue}`} color="bg-green-500" />
+    </div>
 
-        <StatCard title="Books" value={stats.books} color="bg-indigo-500" />
+    <AdminChart data={monthly} />
 
-        <StatCard title="Users" value={stats.users} color="bg-blue-500" />
-
-        <StatCard title="Borrowed" value={stats.borrowed} color="bg-yellow-500" />
-
-        <StatCard title="Revenue" value={`₹${stats.revenue}`} color="bg-green-500" />
-
-      </div>
-
+  </div>
+);
       {/* CHART */}
       <div className="mt-6">
         <AdminChart data={monthly} />
       </div>
-
-    </DashboardLayout>
-  );
 };
 
 const StatCard = ({ title, value, color }) => (
