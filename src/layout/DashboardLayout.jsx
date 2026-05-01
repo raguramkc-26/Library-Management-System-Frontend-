@@ -1,7 +1,8 @@
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       
@@ -14,7 +15,7 @@ const DashboardLayout = ({ children }) => {
         <Topbar />
 
         <main className="p-6 flex-1 overflow-y-auto">
-          {children}
+          <Outlet />
         </main>
 
       </div>
