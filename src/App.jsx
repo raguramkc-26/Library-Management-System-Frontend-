@@ -13,6 +13,7 @@ import Books from "./pages/user/Books";
 import Profile from "./pages/user/Profile";
 import Notifications from "./pages/user/Notifications";
 import BorrowedBooks from "./pages/user/BorrowedBooks";
+import BookDetails from "./pages/user/BookDetails";
 
 // ADMIN
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -21,15 +22,12 @@ import AdminReviews from "./pages/admin/AdminReviews";
 import AddBook from "./pages/admin/AddBook";
 import EditBook from "./pages/admin/EditBook";
 
-// COMMON
-import BookDetails from "./pages/user/BookDetails.jsx";
-
 // LAYOUTS & ROUTES
-import DashboardLayout from "./layout/DashboardLayout.jsx";
+import DashboardLayout from "./layout/DashboardLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
 
-// UTILS
+// ERROR
 import ErrorBoundary from "./components/ErrorBoundary";
 
 const router = createBrowserRouter([
@@ -38,37 +36,28 @@ const router = createBrowserRouter([
     element: <Navigate to="/dashboard" replace />,
   },
 
-  // PUBLIC 
+  // ---------- PUBLIC ----------
   {
     path: "/login",
     element: <Login />,
-    errorElement: <ErrorBoundary />,
   },
   {
     path: "/register",
     element: <Register />,
-    errorElement: <ErrorBoundary />,
   },
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
-    errorElement: <ErrorBoundary />,
   },
   {
     path: "/reset-password/:token",
     element: <ResetPassword />,
-    errorElement: <ErrorBoundary />,
   },
 
-  // PROTECTED (USER + COMMON) 
+  // ---------- USER ----------
   {
     element: <ProtectedRoute />,
-    errorElement: <ErrorBoundary />,
     children: [
-      {
-        path: "/book/:id",
-        element: <BookDetails />,
-      },
       {
         path: "/dashboard",
         element: <DashboardLayout />,
@@ -80,13 +69,17 @@ const router = createBrowserRouter([
           { path: "notifications", element: <Notifications /> },
         ],
       },
+
+      {
+        path: "/book/:id",
+        element: <BookDetails />,
+      },
     ],
   },
 
-  // ADMIN
+  // ---------- ADMIN ----------
   {
     element: <AdminRoute />,
-    errorElement: <ErrorBoundary />,
     children: [
       {
         path: "/admin",
@@ -103,29 +96,16 @@ const router = createBrowserRouter([
     ],
   },
 
-  // 404 
+  // ---------- 404 ----------
   {
     path: "*",
-    element: (
-      <div className="h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-6xl font-bold text-indigo-600">404</h1>
-        <p className="text-gray-500 text-lg">
-          The page you’re looking for doesn’t exist
-        </p>
-        <button
-          onClick={() => (window.location.href = "/dashboard")}
-          className="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700"
-        >
-          Go to Dashboard
-        </button>
-      </div>
-    ),
+    element: <Navigate to="/dashboard" replace />,
   },
 ]);
 
 const App = () => {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary> 
       <RouterProvider router={router} />
       <ToastContainer position="top-right" autoClose={3000} />
     </ErrorBoundary>

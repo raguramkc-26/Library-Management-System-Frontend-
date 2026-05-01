@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import DashboardLayout from "../../layout/DashboardLayout";
 import StatCard from "../../components/ui/StatCard";
 import Loader from "../../components/ui/Loader";
 import AdminChart from "../../components/charts/AdminChart";
@@ -21,7 +20,6 @@ const AdminDashboard = () => {
 
   const [monthly, setMonthly] = useState([]);
   const [topBooks, setTopBooks] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +36,6 @@ const AdminDashboard = () => {
         getTopBooks(),
       ]);
 
-      // FIXED DATA EXTRACTION
       setStats(statsRes?.data?.data || {});
       setMonthly(monthlyRes?.data?.data || []);
       setTopBooks(topBooksRes?.data?.data || []);
@@ -53,10 +50,10 @@ const AdminDashboard = () => {
   if (loading) return <Loader />;
 
   return (
-    <DashboardLayout>
+    <div className="space-y-6">
 
       {/* HEADER */}
-      <div className="mb-6">
+      <div>
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <p className="text-gray-500">
           Monitor library performance & analytics
@@ -64,17 +61,16 @@ const AdminDashboard = () => {
       </div>
 
       {/* STATS */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
+      <div className="grid md:grid-cols-4 gap-6">
         <StatCard title="Books" value={stats.books} color="from-indigo-500 to-indigo-700" />
         <StatCard title="Users" value={stats.users} color="from-blue-500 to-blue-700" />
         <StatCard title="Borrowed" value={stats.borrowed} color="from-yellow-500 to-yellow-700" />
         <StatCard title="Revenue" value={`₹${stats.revenue}`} color="from-green-500 to-green-700" />
       </div>
 
-      {/* CHARTS SECTION */}
+      {/* CHARTS */}
       <div className="grid lg:grid-cols-2 gap-6">
 
-        {/* MONTHLY CHART */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
           <h2 className="text-lg font-semibold mb-4">
             Monthly Borrow Trends
@@ -82,7 +78,6 @@ const AdminDashboard = () => {
           <AdminChart data={monthly} />
         </div>
 
-        {/* TOP BOOKS */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
           <h2 className="text-lg font-semibold mb-4">
             Top Borrowed Books
@@ -92,7 +87,7 @@ const AdminDashboard = () => {
 
       </div>
 
-    </DashboardLayout>
+    </div>
   );
 };
 
