@@ -31,23 +31,14 @@ export const AuthProvider = ({ children }) => {
         }
 
         const res = await getMe();
-
-        const userData = res?.data?.user;
-
-        if (!userData) throw new Error("Invalid user");
-
-        setUser(userData);
+        setUser(res.data.user);
 
       } catch (err) {
         console.error("Auth Error:", err);
 
-        // Only remove if truly unauthorized
-        if (err?.response?.status === 401) {
           localStorage.removeItem("token");
           setUser(null);
-        }
-
-      } finally {
+        } finally {
         setLoading(false);
       }
     };
