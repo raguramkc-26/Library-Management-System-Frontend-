@@ -18,9 +18,7 @@ const Login = () => {
 
   try {
     const res = await loginUser(form);
-    const user = res?.data?.user;
-    const token = res?.data?.token;
-    login(user, token);
+    login(res.data.user, res.data.token);
 
     toast.success("Login successful");
 
