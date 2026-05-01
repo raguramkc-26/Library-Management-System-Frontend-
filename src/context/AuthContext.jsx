@@ -19,30 +19,30 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // LOAD USER ON APP START
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     const loadUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
         const res = await getMe();
         setUser(res.data.user);
-
       } catch (err) {
-        console.error("Auth Error:", err.response?.data || err.message); 
-          setUser(null);
-        } finally {
+        console.error("Auth Error:", err.response?.data || err.message);
+
+        // ❗ do NOT delete token blindly
+        setUser(null);
+      } finally {
         setLoading(false);
       }
     };
 
     loadUser();
-  }, []);
+  }, []); 
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
