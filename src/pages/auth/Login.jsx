@@ -19,19 +19,11 @@ const Login = () => {
   try {
     const res = await loginUser(form);
 
-    console.log("LOGIN RESPONSE:", res.data);
+    login(res.data.user, res.data.token);
 
-    const token = res.data.token;
-    const user = res.data.user;
+    toast.success("Login successful");
 
-    if (!token) {
-      throw new Error("Token missing from response");
-    }
-
-    login(user, token);
-
-    console.log("TOKEN STORED:", localStorage.getItem("token"));
-
+    // ROLE BASED REDIRECT
     if (res.data.user.role === "admin") {
       navigate("/admin/dashboard");
     } else {
@@ -39,7 +31,6 @@ const Login = () => {
     }
 
   } catch (err) {
-    console.error(err);
     toast.error(err?.response?.data?.message || "Login failed");
   }
 };
