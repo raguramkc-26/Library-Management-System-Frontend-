@@ -38,7 +38,7 @@ const Books = () => {
         keyword: debouncedSearch,
       });
 
-      setBooks(res?.data || []);
+      setBooks(res?.data?.data || []);
 
     } catch {
       toast.error("Failed to load books");
@@ -53,28 +53,33 @@ const Books = () => {
     return <EmptyState title="No books found" />;
 
   return (
-    <div className="p-6 space-y-6">
+   <div className="p-6 space-y-6">
 
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search books..."
-        className="w-full border p-3 rounded"
-      />
+  <input
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Search books..."
+    className="w-full border p-3 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500"
+  />
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {books.map((b) => (
-          <Card key={b._id}>
-            <h2>{b.title}</h2>
+  <div className="grid md:grid-cols-3 gap-6">
+    {books.map((b) => (
+      <Card key={b._id} className="p-4 hover:shadow-lg transition">
 
-            <Button onClick={() => navigate(`/book/${b._id}`)}>
-              View
-            </Button>
-          </Card>
-        ))}
-      </div>
+        <h2 className="font-semibold text-lg">{b.title}</h2>
 
-    </div>
+        <Button
+          className="mt-3 w-full"
+          onClick={() => navigate(`/book/${b._id}`)}
+        >
+          View Details
+        </Button>
+
+      </Card>
+    ))}
+  </div>
+
+</div>
   );
 };
 
