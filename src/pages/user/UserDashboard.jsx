@@ -61,7 +61,8 @@ const UserDashboard = () => {
   };
 
   // LOADING STATE
-  if (loading) return <Loader />;
+  if (authLoading || dataLoading) return 
+  <Loader />;
 
   return (
     <div className="space-y-6">
