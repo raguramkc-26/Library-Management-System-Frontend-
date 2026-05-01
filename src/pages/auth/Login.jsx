@@ -10,30 +10,54 @@ const Login = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await loginUser(form);
-
-    login(res.data.user, res.data.token);
-
-    toast.success("Login successful");
-
-    // ROLE BASED REDIRECT
-    if (res.data.user.role === "admin") {
-      navigate("/admin/dashboard");
-    } else {
-      navigate("/dashboard");
+    // Basic validation 
+    if (!form.email || !form.password) {
+      return toast.error("Email and password are required");
     }
 
-  } catch (err) {
-    toast.error(err?.response?.data?.message || "Login failed");
-  }
-};
+    try {
+      setLoading(true);
+
+      const res = await loginUser(form);
+
+      // Defensive check 
+      if (!res?.data?.token || !res?.data?.user) {
+        throw new Error("Invalid login response");
+      }
+
+      // Save auth
+      login(res.data.user, res.data.token);
+
+      toast.success("Login successful");
+
+      // replace prevents going back to login
+      if (res.data.user.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      toast.error(
+        err?.response?.data?.message ||
+        err.message ||
+        "Login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
@@ -66,9 +90,10 @@ const Login = () => {
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition"
+          disabled={loading}
+          className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
