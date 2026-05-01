@@ -18,21 +18,31 @@ const Login = () => {
 
   try {
     const res = await loginUser(form);
-    login(res.data.user, res.data.token);
 
-    toast.success("Login successful");
+    console.log("LOGIN RESPONSE:", res.data);
 
-    if (res.user.role === "admin") {
+    const token = res.data.token;
+    const user = res.data.user;
+
+    if (!token) {
+      throw new Error("Token missing from response");
+    }
+
+    login(user, token);
+
+    console.log("TOKEN STORED:", localStorage.getItem("token"));
+
+    if (user.role === "admin") {
       navigate("/admin/dashboard");
     } else {
       navigate("/dashboard");
     }
 
   } catch (err) {
+    console.error(err);
     toast.error(err?.response?.data?.message || "Login failed");
   }
 };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form

@@ -7,9 +7,15 @@ console.log("BASE URL:",
 import.meta.env.VITE_API_URL);
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
+
+  console.log("Interceptor token:", token); // DEBUG
+
+  if (!token) {
+    console.warn("No token found!");
+  } else {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
