@@ -7,14 +7,17 @@ const AddBook = () => {
   const [form, setForm] = useState({
     title: "",
     author: "",
-    image: "",
     description: "",
     year: "",
     isbn: "",
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState("");
+
   const [loading, setLoading] = useState(false);
 
+  // TEXT INPUT
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -22,40 +25,50 @@ const AddBook = () => {
     });
   };
 
+  // IMAGE INPUT
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // validation
     if (!form.title || !form.author) {
       return toast.error("Title and Author are required");
-    }
-
-    if (form.year && (form.year < 1000 || form.year > new Date().getFullYear())) {
-      return toast.error("Enter a valid year");
-    }
-
-    if (form.isbn && form.isbn.length < 10) {
-      return toast.error("ISBN must be at least 10 characters");
     }
 
     try {
       setLoading(true);
 
-      await createBook({
-        ...form,
-        year: Number(form.year),
+      const formData = new FormData();
+
+      Object.keys(form).forEach((key) => {
+        formData.append(key, form[key]);
       });
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      await createBook(formData); // MUST support multipart
 
       toast.success("Book added successfully");
 
       setForm({
         title: "",
         author: "",
-        image: "",
         description: "",
         year: "",
         isbn: "",
       });
+
+      setImageFile(null);
+      setPreview("");
 
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to add book");
@@ -75,6 +88,26 @@ const AddBook = () => {
         <h2 className="text-2xl font-bold text-indigo-600 text-center">
           Add New Book
         </h2>
+
+        {/* IMAGE UPLOAD */}
+        <div className="space-y-2">
+          <label className="text-sm text-gray-500">Book Image</label>
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full border p-2 rounded-lg"
+          />
+
+          {preview && (
+            <img
+              src={preview}
+              alt="preview"
+              className="w-32 h-40 object-cover rounded-lg mt-2"
+            />
+          )}
+        </div>
 
         {/* TITLE */}
         <input
@@ -100,8 +133,8 @@ const AddBook = () => {
           name="year"
           value={form.year}
           onChange={handleChange}
-          placeholder="Published Year (e.g. 2022)"
-          className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          placeholder="Published Year"
+          className="w-full border p-3 rounded-lg"
         />
 
         {/* ISBN */}
@@ -109,17 +142,8 @@ const AddBook = () => {
           name="isbn"
           value={form.isbn}
           onChange={handleChange}
-          placeholder="ISBN Number"
-          className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
-        />
-
-        {/* IMAGE */}
-        <input
-          name="image"
-          value={form.image}
-          onChange={handleChange}
-          placeholder="Image URL"
-          className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          placeholder="ISBN"
+          className="w-full border p-3 rounded-lg"
         />
 
         {/* DESCRIPTION */}
@@ -129,20 +153,15 @@ const AddBook = () => {
           onChange={handleChange}
           placeholder="Description"
           rows="4"
-          className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          className="w-full border p-3 rounded-lg"
         />
 
         {/* BUTTON */}
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Adding..." : "Add Book"}
         </Button>
 
       </form>
-
     </div>
   );
 };

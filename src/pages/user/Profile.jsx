@@ -1,30 +1,36 @@
 import { useEffect, useState } from "react";
-import { getMe } from "../../services/authService";
+import { getMe, updateProfile } from "../../services/authService";
 import { toast } from "react-toastify";
 import Card from "../../components/ui/Card";
 import Loader from "../../components/ui/Loader";
-import { useAuth } from "../../context/AuthContext";
 
 const Profile = () => {
-  const { logout } = useAuth();
-
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+  });
 
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Load user
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        setLoading(true);
-
         const res = await getMe();
-        setUser(res?.data?.user || null);
+
+        const userData = res?.data?.user;
+
+        setUser(userData);
+        setForm({
+          name: userData.name,
+          email: userData.email,
+        });
 
       } catch (err) {
-        console.error("Profile Error:", err);
-
-        toast.error(
-          err?.response?.data?.message || "Failed to load profile"
-        );
+        toast.error("Failed to load profile");
       } finally {
         setLoading(false);
       }
@@ -33,57 +39,132 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  // LOADING STATE
+  // Handle input change
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // Save profile
+  const handleSave = async () => {
+    if (!form.name || !form.email) {
+      return toast.error("All fields required");
+    }
+
+    try {
+      setSaving(true);
+
+      const res = await updateProfile(form);
+
+      setUser(res?.data?.user);
+      setEditMode(false);
+
+      toast.success("Profile updated");
+
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Update failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) return <Loader />;
 
-  // NO USER
   if (!user) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">No user data found</p>
-      </div>
-    );
+    return <p className="text-center text-gray-500">No user data</p>;
   }
 
   return (
     <div className="p-6 flex justify-center">
 
-      <Card className="w-full max-w-md p-6 rounded-2xl shadow-xl">
+      <Card className="w-full max-w-md p-6 rounded-2xl shadow-xl space-y-5">
 
         {/* HEADER */}
-        <div className="text-center mb-6">
+        <div className="text-center">
           <div className="w-16 h-16 mx-auto bg-indigo-500 text-white flex items-center justify-center rounded-full text-xl font-bold">
             {user.name?.charAt(0).toUpperCase()}
           </div>
 
-          <h2 className="text-xl font-bold mt-3">{user.name}</h2>
-          <p className="text-gray-500 text-sm">{user.email}</p>
+          <h2 className="text-xl font-bold mt-3">Profile</h2>
         </div>
 
-        {/* DETAILS */}
-        <div className="space-y-3 text-sm">
+        {/* FORM */}
+        <div className="space-y-4">
 
-          <div className="flex justify-between border-b pb-2">
-            <span className="text-gray-500">User ID</span>
-            <span className="font-medium">{user._id}</span>
+          {/* NAME */}
+          <div>
+            <label className="text-sm text-gray-500">Name</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              disabled={!editMode}
+              className="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+            />
           </div>
 
-          <div className="flex justify-between border-b pb-2">
-            <span className="text-gray-500">Role</span>
-            <span className="font-medium capitalize">
-              {user.role}
-            </span>
+          {/* EMAIL */}
+          <div>
+            <label className="text-sm text-gray-500">Email</label>
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              disabled={!editMode}
+              className="w-full border p-3 rounded-lg mt-1 focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
+            />
+          </div>
+
+          {/* ROLE */}
+          <div>
+            <label className="text-sm text-gray-500">Role</label>
+            <input
+              value={user.role}
+              disabled
+              className="w-full border p-3 rounded-lg mt-1 bg-gray-100"
+            />
           </div>
 
         </div>
 
-        {/* ACTIONS */}
-        <button
-          onClick={logout}
-          className="mt-6 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-        >
-          Logout
-        </button>
+        {/* ACTION BUTTONS */}
+        <div className="flex gap-3 pt-4">
+
+          {!editMode ? (
+            <button
+              onClick={() => setEditMode(true)}
+              className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditMode(false);
+                  setForm({
+                    name: user.name,
+                    email: user.email,
+                  });
+                }}
+                className="w-full bg-gray-300 py-2 rounded-lg hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+
+        </div>
 
       </Card>
 
