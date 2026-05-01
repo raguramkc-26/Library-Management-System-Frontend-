@@ -19,27 +19,18 @@ const Login = () => {
   try {
     const res = await loginUser(form);
 
-    console.log("LOGIN RESPONSE:", res);
 
-    const user = res?.data?.user;
-    const token = res?.data?.token;
-
-    if (!user || !token) {
-      throw new Error("Invalid login response");
-    }
-
-    login(user, token);
+    login(res.user, res.token);
 
     toast.success("Login successful");
 
-    if (user.role === "admin") {
+    if (res.user.role === "admin") {
       navigate("/admin/dashboard");
     } else {
       navigate("/dashboard");
     }
 
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
     toast.error(err?.response?.data?.message || "Login failed");
   }
 };
