@@ -1,15 +1,25 @@
 import { motion } from "framer-motion";
 
-const StatCard = ({ title, value, color }) => {
+const StatCard = ({ title, value, icon: Icon, color }) => {
   return (
     <motion.div
-      whileHover={{ scale: 1.03 }}
-      className={`p-6 rounded-2xl shadow-md text-white bg-gradient-to-r ${color}`}
+      whileHover={{ y: -4 }}
+      className={`p-5 rounded-2xl shadow-md bg-white border`}
     >
-      <p className="text-sm opacity-80">{title}</p>
-      <h2 className="text-3xl font-bold mt-2">
-        {value || 0}
-      </h2>
+      <div className="flex justify-between items-center">
+
+        <div>
+          <p className="text-sm text-gray-500">{title}</p>
+          <h2 className="text-2xl font-bold mt-1 text-gray-800">
+            {value || 0}
+          </h2>
+        </div>
+
+        <div className={`p-3 rounded-lg ${color}`}>
+          <Icon className="text-white" size={20} />
+        </div>
+
+      </div>
     </motion.div>
   );
 };
